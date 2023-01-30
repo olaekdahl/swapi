@@ -1,7 +1,6 @@
 FROM mongo:5.0
+
 ENV DATABASE_URI mongodb://localhost:27017/swapi
-ENV USERNAME root
-ENV PASSWORD example
 
 RUN mkdir /swapi-data/
 
