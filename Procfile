@@ -1,1 +1,0 @@
-web: gunicorn swapi.wsgi --log-file -
