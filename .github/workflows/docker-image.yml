@@ -1,0 +1,24 @@
+name: build_deploy_az_webapp
+on:
+  push:
+    paths:
+      - "/**"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code 
+        uses: actions/checkout@v3
+      - name: ACR build
+        id: build-push-acr
+        uses: azure/acr-build@v1
+        with:
+          service_principal: ${{ secrets.SERVICE_PRINCIPAL }}
+          service_principal_password: ${{ secrets.SERVICE_PRINCIPAL_PASSWORD }}
+          tenant: ${{ secrets.TENANT }}
+          registry: ${{ secrets.REGISTRY }}
+          repository: ${{ secrets.REPOSITORY }}
+          image:  swapi
+          folder: .
+          branch: master
+          tag: ${{ github.sha }}
