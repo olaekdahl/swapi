@@ -24,6 +24,12 @@ jobs:
             docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/swapi:${{ github.sha }}
             docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/swapi:${{ github.sha }}
 
+        - uses: azure/webapps-deploy@v2
+          with:
+            app-name: 'swapi2'
+            publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+            images: 'swapi.azurecr.io/swapi:${{ github.sha }}'
+
         # - name: 'Deploy to Azure Container Instances'
         #   uses: 'azure/aci-deploy@v1'
         #   with:
