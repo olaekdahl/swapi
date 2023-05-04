@@ -7,3 +7,4 @@ staticfiles
 db.sqlite3
 .DS_Store
 .idea
+node_modules
