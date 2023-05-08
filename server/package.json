@@ -3,8 +3,10 @@
   "version": "0.0.1",
   "description": "RESTful API server for SWAPI data",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "start": "json-server database.json",
+    "start-json-server": "json-server database.json",
+    "start": "node --watch index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "@RapPayne & @olaekdahl",

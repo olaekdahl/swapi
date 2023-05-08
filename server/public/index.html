@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="site.css" />
+  <title>SWAPI Data Server</title>
+</head>
+
+<body>
+  <header></header>
+  <main>
+    <h1>SWAPI data</h1>
+    <p>To get to the SWAPI data, make RESTful requests at /api</p>
+
+    <ul>
+      <li><a href="/api/films">Films</a></li>
+      <li><a href="/api/characters">Characters</a></li>
+      <li><a href="/api/planets">Planets</a></li>
+      <li><a href="/api/species">Species</a></li>
+      <li><a href="/api/starships">Starships</a></li>
+      <li><a href="/api/transports">Transports</a></li>
+      <li><a href="/api/vehicles">Vehicles</a></li>
+    </ul>
+
+    There are several many-to-many relations between these collections
+    <table>
+      <thead>
+        <tr>
+          <th>URL</th>
+          <th>Junction table</th>
+          <th>Explanation</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>/api/films/:film_id/characters</td>
+          <td><a href="/api/films_characters">films_characters</a></td>
+          <td>The characters in films. A film has many characters. A character can appear in many films.</td>
+        </tr>
+        <tr>
+          <td>/api/films/:film_id/planets</td>
+          <td><a href="/api/films_planets">films_planets</a></td>
+          <td>The planets in films. A film has many planets. A planet can appear in many films.</td>
+        </tr>
+        <tr>
+          <td>/api/films/:film_id/species</td>
+          <td><a href="/api/films_species">films_species</a></td>
+          <td>The species in films. A film has many species. A species can appear in many films.</td>
+        </tr>
+        <tr>
+          <td>/api/films/:film_id/starships</td>
+          <td><a href="/api/films_starships">films_starships</a></td>
+          <td>The starships in films. A film has many starships. A starship can appear in many films.</td>
+        </tr>
+        <tr>
+          <td>/api/films/:film_id/vehicles</td>
+          <td><a href="/api/films_vehicles">films_vehicles</a></td>
+          <td>The vehicles in films. A film has many vehicles. A vehicle can appear in many films.</td>
+        </tr>
+        <tr>
+          <td>/api/species/:species_id/characters</td>
+          <td><a href="/api/species_characters">species_characters</a></td>
+          <td>The characters who are members of species. This one is weird (but it's how the data was presented). A
+            character is a member of one species. A species has many characters.</td>
+        </tr>
+        <tr>
+          <td>/api/starships/:starship_id/characters</td>
+          <td><a href="/api/starships_characters">starships_characters</a></td>
+          <td>The starships and their pilots. A starship can have many pilots. A character can fly many starships.</td>
+        </tr>
+        <tr>
+          <td>/api/vehicles/:vehicle_id/characters</td>
+          <td><a href="/api/vehicles_characters">vehicles_characters</a></td>
+          <td>The vehicles and their drivers. A vehicle can have many drivers. A character can drive many vehicles.</td>
+        </tr>
+      </tbody>
+    </table>
+
+
+  </main>
+  <footer></footer>
+</body>
+
+</html>

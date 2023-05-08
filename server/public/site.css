@@ -1,0 +1,15 @@
+:root {
+  font-family: Arial, Helvetica, sans-serif;
+  --light1: beige;
+  --light2: pink;
+  --dark1: black;
+  --dark2: blue;
+}
+
+table {
+  background-color: var(--light1);
+
+  & tr:nth-child(2n) {
+    background-color: var(--light2);
+  }
+}
