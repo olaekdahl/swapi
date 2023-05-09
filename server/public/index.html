@@ -13,19 +13,26 @@
   <header></header>
   <main>
     <h1>SWAPI data</h1>
-    <p>To get to the SWAPI data, make RESTful requests at /api</p>
+    <p>To get to the SWAPI data, make RESTful requests at <a href="/api">/api</a>.</p>
 
+    <h2>Core data</h2>
+    GET the core data points by hitting these urls:
     <ul>
-      <li><a href="/api/films">Films</a></li>
-      <li><a href="/api/characters">Characters</a></li>
-      <li><a href="/api/planets">Planets</a></li>
-      <li><a href="/api/species">Species</a></li>
-      <li><a href="/api/starships">Starships</a></li>
-      <li><a href="/api/transports">Transports</a></li>
-      <li><a href="/api/vehicles">Vehicles</a></li>
+      <li>Films: <a href="/api/films">/api/films</a></li>
+      <li>Characters: <a href="/api/characters">/api/characters</a></li>
+      <li>Planets: <a href="/api/planets">/api/planets</a></li>
+      <li>Species: <a href="/api/species">/api/species</a></li>
+      <li>Starships: <a href="/api/starships">/api/starships</a></li>
+      <li>Transports: <a href="/api/transports">/api/transports</a></li>
+      <li>Vehicles: <a href="/api/vehicles">/api/vehicles</a></li>
     </ul>
 
-    There are several many-to-many relations between these collections
+    <h2>Relationship data</h2>
+    <p>This data has several many-to-many relations between these collections. ie. A film has many characters and a
+      character can appear in many movies. To solve this problem, we created <i>junction</i> tables/collections and we
+      exposed API endpoints to help you get to the related data. So if you want to find all the characters that appear
+      in a given film, you'd query <a href="/api/films/1/characters">/api/films/:id/characters</a> where ':id' is the
+      film's id. </p>
     <table>
       <thead>
         <tr>
@@ -36,39 +43,46 @@
       </thead>
       <tbody>
         <tr>
-          <td>/api/films/:film_id/characters</td>
-          <td><a href="/api/films_characters">films_characters</a></td>
-          <td>The characters in films. A film has many characters. A character can appear in many films.</td>
-        </tr>
-        <tr>
           <td>/api/characters/:character_id/films</td>
           <td><a href="/api/films_characters">films_characters</a></td>
-          <td>The films for a character. Same as above but approaching from the characters side.</td>
+          <td>The films for a given character</td>
+        </tr>
+        <tr>
+          <td>/api/films/:film_id/characters</td>
+          <td><a href="/api/films_characters">films_characters</a></td>
+          <td>The characters in a given film</td>
         </tr>
         <tr>
           <td>/api/films/:film_id/planets</td>
           <td><a href="/api/films_planets">films_planets</a></td>
-          <td>The planets in a film. A film has many planets. A planet can appear in many films.</td>
+          <td>The planets in a film</td>
         </tr>
-        <tr>
-          <td>/api/planets/:planet_id/films</td>
-          <td><a href="/api/films_planets">films_planets</a></td>
-          <td>The films that feature a planet. Same as above but approaching from the planet side.</td>
-        </tr>
+
         <tr>
           <td>/api/films/:film_id/species</td>
           <td><a href="/api/films_species">films_species</a></td>
-          <td>The species in films. A film has many species. A species can appear in many films.</td>
+          <td>All the species in a given films</td>
         </tr>
         <tr>
           <td>/api/films/:film_id/starships</td>
           <td><a href="/api/films_starships">films_starships</a></td>
-          <td>The starships in films. A film has many starships. A starship can appear in many films.</td>
+          <td>The starships in any given film</td>
         </tr>
         <tr>
           <td>/api/films/:film_id/vehicles</td>
           <td><a href="/api/films_vehicles">films_vehicles</a></td>
-          <td>The vehicles in films. A film has many vehicles. A vehicle can appear in many films.</td>
+          <td>The vehicles in a particular film</td>
+        </tr>
+        <tr>
+          <td>/api/planets/:planet_id/characters</td>
+          <td>None needed</td>
+          <td>The characters who are from a planet. A planet can have many characters but each character can have only
+            one homeworld.</td>
+        </tr>
+        <tr>
+          <td>/api/planets/:planet_id/films</td>
+          <td><a href="/api/films_planets">films_planets</a></td>
+          <td>The films that feature a particular planet</td>
         </tr>
         <tr>
           <td>/api/species/:species_id/characters</td>
@@ -79,20 +93,13 @@
         <tr>
           <td>/api/starships/:starship_id/characters</td>
           <td><a href="/api/starships_characters">starships_characters</a></td>
-          <td>The starships and their pilots. A starship can have many pilots. A character can fly many starships.</td>
+          <td>The pilots for a given starship</td>
         </tr>
         <tr>
           <td>/api/vehicles/:vehicle_id/characters</td>
           <td><a href="/api/vehicles_characters">vehicles_characters</a></td>
-          <td>The vehicles and their drivers. A vehicle can have many drivers. A character can drive many vehicles.</td>
+          <td>The drivers for a given vehicle</td>
         </tr>
-        <tr>
-          <td>/api/planets/:planet_id/characters</td>
-          <td>None needed</td>
-          <td>The characters who are from a planet. A planet can have many characters but each character can have only
-            one homeworld.</td>
-        </tr>
-
       </tbody>
     </table>
 

@@ -1,13 +1,43 @@
 :root {
   font-family: Arial, Helvetica, sans-serif;
-  --light1: beige;
-  --light2: pink;
-  --dark1: black;
-  --dark2: blue;
+
+  --red: #ff0000ff;
+  --ut-orange: #ff8700ff;
+  --gold: #ffd300ff;
+  --chartreuse: #deff0aff;
+  --spring-bud: #a1ff0aff;
+  --spring-green: #0aff99ff;
+  --electric-blue: #0aefffff;
+  --azure: #147df5ff;
+  --electric-indigo: #580affff;
+  --electric-purple: #be0affff;
+
+  --light2: #FAD0C4;
+  /* light peach */
+  --light1: #FFF4E0;
+  /* light yellow */
+  --dark2: #7F98AA;
+  /* dark blue-gray */
+  --dark1: #1C2331;
+  /* darkest blue */
+
+  color: var(--dark1);
+  background-color: var(--light1);
 }
 
 table {
-  background-color: var(--light1);
+
+  & thead tr th {
+    border-bottom: 2px solid var(--dark2)
+  }
+
+  & tr td {
+    padding: 10px;
+  }
+
+  & tr td:nth-child(1) {
+    font-weight: bold;
+  }
 
   & tr:nth-child(2n) {
     background-color: var(--light2);
