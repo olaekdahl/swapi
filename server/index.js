@@ -1,8 +1,10 @@
 import express from 'express';
+import cors from 'cors';
 import jsonServer from 'json-server';
 
 // Create an express web server
 const app = express();
+app.use(cors());
 // Set the port
 const port = process.env.PORT || 3000;
 
@@ -15,6 +17,15 @@ app.get('/api/films/:id/characters', (req, res) => {
   res.json(characters);
 });
 
+// GET route for /api/characters/:id/films
+app.get('/api/characters/:id/films', (req, res) => {
+  const { id } = req.params;
+  const junction_data = router.db.get('films_characters').filter({ character_id: +id }).value();
+  const films_ids = junction_data.map(item => item.film_id);
+  const films = router.db.get('films').value().filter(film => films_ids.includes(film.id)).map(film => ({ "id": film.id, "title": film.title }));
+  res.json(films);
+});
+
 // GET route for /api/films/:id/planets
 app.get('/api/films/:id/planets', (req, res) => {
   const { id } = req.params;
@@ -22,6 +33,15 @@ app.get('/api/films/:id/planets', (req, res) => {
   const planet_ids = junction_data.map(item => item.planet_id);
   const planets = router.db.get('planets').value().filter(planet => planet_ids.includes(planet.id)).map(planet => ({ "id": planet.id, "name": planet.name }));
   res.json(planets);
+});
+
+// GET route for /api/planets/:id/films
+app.get('/api/planets/:id/films', (req, res) => {
+  const { id } = req.params;
+  const junction_data = router.db.get('films_planets').filter({ planet_id: +id }).value();
+  const films_ids = junction_data.map(item => item.film_id);
+  const films = router.db.get('films').value().filter(film => films_ids.includes(film.id)).map(film => ({ "id": film.id, "title": film.title }));
+  res.json(films);
 });
 
 // GET route for /api/films/:id/species
@@ -51,13 +71,13 @@ app.get('/api/films/:id/vehicles', (req, res) => {
   res.json(vehicles);
 });
 
-// GET route for /api/species/:id/people
-app.get('/api/species/:id/people', (req, res) => {
+// GET route for /api/species/:id/characters
+app.get('/api/species/:id/characters', (req, res) => {
   const { id } = req.params;
-  const junction_data = router.db.get('species_people').filter({ species_id: +id }).value();
-  const people_ids = junction_data.map(item => item.people_id);
-  const people = router.db.get('people').value().filter(person => people_ids.includes(person.id)).map(person => ({ "id": person.id, "name": person.name }));
-  res.json(people);
+  const junction_data = router.db.get('species_characters').filter({ species_id: +id }).value();
+  const character_ids = junction_data.map(item => item.character_id);
+  const characters = router.db.get('characters').value().filter(character => character_ids.includes(character.id)).map(character => ({ "id": character.id, "name": character.name }));
+  res.json(characters);
 });
 
 // GET route for /api/starships/:id/characters
@@ -65,7 +85,16 @@ app.get('/api/starships/:id/characters', (req, res) => {
   const { id } = req.params;
   const junction_data = router.db.get('starships_characters').filter({ starship_id: +id }).value();
   const character_ids = junction_data.map(item => item.character_id);
-  const characters = router.db.get('characters').value().filter(person => character_ids.includes(person.id)).map(person => ({ "id": person.id, "name": person.name }));
+  const characters = router.db.get('characters').value().filter(character => character_ids.includes(character.id)).map(character => ({ "id": character.id, "name": character.name }));
+  res.json(characters);
+});
+
+// GET route for /api/planets/:id/characters
+app.get('/api/planets/:id/characters', (req, res) => {
+  const { id } = req.params;
+  const rawCharacters = router.db.get(`characters`).value()
+  //console.log({ id, rawCharacters })
+  const characters = rawCharacters?.filter(character => character.homeworld === +id).map(character => ({ "id": character.id, "name": character.name }));
   res.json(characters);
 });
 

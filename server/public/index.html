@@ -41,9 +41,19 @@
           <td>The characters in films. A film has many characters. A character can appear in many films.</td>
         </tr>
         <tr>
+          <td>/api/characters/:character_id/films</td>
+          <td><a href="/api/films_characters">films_characters</a></td>
+          <td>The films for a character. Same as above but approaching from the characters side.</td>
+        </tr>
+        <tr>
           <td>/api/films/:film_id/planets</td>
           <td><a href="/api/films_planets">films_planets</a></td>
-          <td>The planets in films. A film has many planets. A planet can appear in many films.</td>
+          <td>The planets in a film. A film has many planets. A planet can appear in many films.</td>
+        </tr>
+        <tr>
+          <td>/api/planets/:planet_id/films</td>
+          <td><a href="/api/films_planets">films_planets</a></td>
+          <td>The films that feature a planet. Same as above but approaching from the planet side.</td>
         </tr>
         <tr>
           <td>/api/films/:film_id/species</td>
@@ -76,6 +86,13 @@
           <td><a href="/api/vehicles_characters">vehicles_characters</a></td>
           <td>The vehicles and their drivers. A vehicle can have many drivers. A character can drive many vehicles.</td>
         </tr>
+        <tr>
+          <td>/api/planets/:planet_id/characters</td>
+          <td>None needed</td>
+          <td>The characters who are from a planet. A planet can have many characters but each character can have only
+            one homeworld.</td>
+        </tr>
+
       </tbody>
     </table>
 
