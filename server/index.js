@@ -1,14 +1,35 @@
 import express from 'express';
 import cors from 'cors';
 import jsonServer from 'json-server';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './swagger.js';
 
 // Create an express web server
 const app = express();
 app.use(cors());
+// Add Swagger support
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Set the port
 const port = process.env.PORT || 3000;
 
 // GET route for /api/films/:id/characters
+/**
+ * @swagger
+ * /api/films/{id}/characters:
+ *   get:
+ *     summary: Get a list of characters for a specfic film id.
+ *     description: Returns a list of characters
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: number
+ *         description: The ID of the film to retrieve
+ *     responses:
+ *       200:
+ *         description: OK
+ */
 app.get('/api/films/:id/characters', (req, res) => {
   const { id } = req.params;
   const junction_data = router.db.get('films_characters').filter({ film_id: +id }).value();
