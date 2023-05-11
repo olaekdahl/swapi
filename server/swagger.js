@@ -7,12 +7,13 @@ const swaggerDefinition = {
     version: '1.0.0',
     description: 'API documentation for SWAPI',
   },
-  basePath: '/',
+  basePath: '/api-docs'
 };
 
 const options = {
   swaggerDefinition,
-  apis: ['./index.js'],
+  apis: ['index.js'],
+  url: '/api-docs/swagger.json'
 };
 
 const swaggerSpec = swaggerJSDoc(options);

@@ -9,6 +9,10 @@ const app = express();
 app.use(cors());
 // Add Swagger support
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/api/swagger.json', (_, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
+});
 // Set the port
 const port = process.env.PORT || 3000;
 
