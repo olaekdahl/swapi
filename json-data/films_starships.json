@@ -1,0 +1,222 @@
+[
+  {
+    "film_id": 1,
+    "starship_id": 2
+  },
+  {
+    "film_id": 1,
+    "starship_id": 3
+  },
+  {
+    "film_id": 1,
+    "starship_id": 5
+  },
+  {
+    "film_id": 1,
+    "starship_id": 9
+  },
+  {
+    "film_id": 1,
+    "starship_id": 10
+  },
+  {
+    "film_id": 1,
+    "starship_id": 11
+  },
+  {
+    "film_id": 1,
+    "starship_id": 12
+  },
+  {
+    "film_id": 1,
+    "starship_id": 13
+  },
+  {
+    "film_id": 2,
+    "starship_id": 3
+  },
+  {
+    "film_id": 2,
+    "starship_id": 10
+  },
+  {
+    "film_id": 2,
+    "starship_id": 11
+  },
+  {
+    "film_id": 2,
+    "starship_id": 12
+  },
+  {
+    "film_id": 2,
+    "starship_id": 15
+  },
+  {
+    "film_id": 2,
+    "starship_id": 17
+  },
+  {
+    "film_id": 2,
+    "starship_id": 21
+  },
+  {
+    "film_id": 2,
+    "starship_id": 22
+  },
+  {
+    "film_id": 2,
+    "starship_id": 23
+  },
+  {
+    "film_id": 3,
+    "starship_id": 2
+  },
+  {
+    "film_id": 3,
+    "starship_id": 3
+  },
+  {
+    "film_id": 3,
+    "starship_id": 10
+  },
+  {
+    "film_id": 3,
+    "starship_id": 11
+  },
+  {
+    "film_id": 3,
+    "starship_id": 12
+  },
+  {
+    "film_id": 3,
+    "starship_id": 15
+  },
+  {
+    "film_id": 3,
+    "starship_id": 17
+  },
+  {
+    "film_id": 3,
+    "starship_id": 22
+  },
+  {
+    "film_id": 3,
+    "starship_id": 23
+  },
+  {
+    "film_id": 3,
+    "starship_id": 27
+  },
+  {
+    "film_id": 3,
+    "starship_id": 28
+  },
+  {
+    "film_id": 3,
+    "starship_id": 29
+  },
+  {
+    "film_id": 4,
+    "starship_id": 31
+  },
+  {
+    "film_id": 4,
+    "starship_id": 32
+  },
+  {
+    "film_id": 4,
+    "starship_id": 39
+  },
+  {
+    "film_id": 4,
+    "starship_id": 40
+  },
+  {
+    "film_id": 4,
+    "starship_id": 41
+  },
+  {
+    "film_id": 5,
+    "starship_id": 21
+  },
+  {
+    "film_id": 5,
+    "starship_id": 32
+  },
+  {
+    "film_id": 5,
+    "starship_id": 39
+  },
+  {
+    "film_id": 5,
+    "starship_id": 43
+  },
+  {
+    "film_id": 5,
+    "starship_id": 47
+  },
+  {
+    "film_id": 5,
+    "starship_id": 48
+  },
+  {
+    "film_id": 5,
+    "starship_id": 49
+  },
+  {
+    "film_id": 5,
+    "starship_id": 52
+  },
+  {
+    "film_id": 5,
+    "starship_id": 58
+  },
+  {
+    "film_id": 6,
+    "starship_id": 2
+  },
+  {
+    "film_id": 6,
+    "starship_id": 32
+  },
+  {
+    "film_id": 6,
+    "starship_id": 48
+  },
+  {
+    "film_id": 6,
+    "starship_id": 59
+  },
+  {
+    "film_id": 6,
+    "starship_id": 61
+  },
+  {
+    "film_id": 6,
+    "starship_id": 63
+  },
+  {
+    "film_id": 6,
+    "starship_id": 64
+  },
+  {
+    "film_id": 6,
+    "starship_id": 65
+  },
+  {
+    "film_id": 6,
+    "starship_id": 66
+  },
+  {
+    "film_id": 6,
+    "starship_id": 68
+  },
+  {
+    "film_id": 6,
+    "starship_id": 74
+  },
+  {
+    "film_id": 6,
+    "starship_id": 75
+  }
+]
