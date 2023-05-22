@@ -1,0 +1,54 @@
+[
+  {
+    "vehicle_id": 14,
+    "character_id": 1
+  },
+  {
+    "vehicle_id": 14,
+    "character_id": 18
+  },
+  {
+    "vehicle_id": 19,
+    "character_id": 13
+  },
+  {
+    "vehicle_id": 30,
+    "character_id": 1
+  },
+  {
+    "vehicle_id": 30,
+    "character_id": 5
+  },
+  {
+    "vehicle_id": 38,
+    "character_id": 10
+  },
+  {
+    "vehicle_id": 38,
+    "character_id": 32
+  },
+  {
+    "vehicle_id": 42,
+    "character_id": 44
+  },
+  {
+    "vehicle_id": 44,
+    "character_id": 11
+  },
+  {
+    "vehicle_id": 45,
+    "character_id": 70
+  },
+  {
+    "vehicle_id": 46,
+    "character_id": 11
+  },
+  {
+    "vehicle_id": 55,
+    "character_id": 67
+  },
+  {
+    "vehicle_id": 60,
+    "character_id": 79
+  }
+]

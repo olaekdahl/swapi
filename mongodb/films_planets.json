@@ -1,0 +1,134 @@
+[
+  {
+    "film_id": 1,
+    "planet_id": 1
+  },
+  {
+    "film_id": 1,
+    "planet_id": 2
+  },
+  {
+    "film_id": 1,
+    "planet_id": 3
+  },
+  {
+    "film_id": 2,
+    "planet_id": 4
+  },
+  {
+    "film_id": 2,
+    "planet_id": 5
+  },
+  {
+    "film_id": 2,
+    "planet_id": 6
+  },
+  {
+    "film_id": 2,
+    "planet_id": 27
+  },
+  {
+    "film_id": 3,
+    "planet_id": 1
+  },
+  {
+    "film_id": 3,
+    "planet_id": 5
+  },
+  {
+    "film_id": 3,
+    "planet_id": 7
+  },
+  {
+    "film_id": 3,
+    "planet_id": 8
+  },
+  {
+    "film_id": 3,
+    "planet_id": 9
+  },
+  {
+    "film_id": 4,
+    "planet_id": 1
+  },
+  {
+    "film_id": 4,
+    "planet_id": 8
+  },
+  {
+    "film_id": 4,
+    "planet_id": 9
+  },
+  {
+    "film_id": 5,
+    "planet_id": 1
+  },
+  {
+    "film_id": 5,
+    "planet_id": 8
+  },
+  {
+    "film_id": 5,
+    "planet_id": 9
+  },
+  {
+    "film_id": 5,
+    "planet_id": 10
+  },
+  {
+    "film_id": 5,
+    "planet_id": 11
+  },
+  {
+    "film_id": 6,
+    "planet_id": 1
+  },
+  {
+    "film_id": 6,
+    "planet_id": 2
+  },
+  {
+    "film_id": 6,
+    "planet_id": 5
+  },
+  {
+    "film_id": 6,
+    "planet_id": 8
+  },
+  {
+    "film_id": 6,
+    "planet_id": 9
+  },
+  {
+    "film_id": 6,
+    "planet_id": 12
+  },
+  {
+    "film_id": 6,
+    "planet_id": 13
+  },
+  {
+    "film_id": 6,
+    "planet_id": 14
+  },
+  {
+    "film_id": 6,
+    "planet_id": 15
+  },
+  {
+    "film_id": 6,
+    "planet_id": 16
+  },
+  {
+    "film_id": 6,
+    "planet_id": 17
+  },
+  {
+    "film_id": 6,
+    "planet_id": 18
+  },
+  {
+    "film_id": 6,
+    "planet_id": 19
+  }
+]

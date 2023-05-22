@@ -1,0 +1,122 @@
+[
+  {
+    "starship_id": 10,
+    "character_id": 13
+  },
+  {
+    "starship_id": 10,
+    "character_id": 14
+  },
+  {
+    "starship_id": 10,
+    "character_id": 25
+  },
+  {
+    "starship_id": 10,
+    "character_id": 31
+  },
+  {
+    "starship_id": 12,
+    "character_id": 1
+  },
+  {
+    "starship_id": 12,
+    "character_id": 9
+  },
+  {
+    "starship_id": 12,
+    "character_id": 18
+  },
+  {
+    "starship_id": 12,
+    "character_id": 19
+  },
+  {
+    "starship_id": 13,
+    "character_id": 4
+  },
+  {
+    "starship_id": 21,
+    "character_id": 22
+  },
+  {
+    "starship_id": 22,
+    "character_id": 1
+  },
+  {
+    "starship_id": 22,
+    "character_id": 13
+  },
+  {
+    "starship_id": 22,
+    "character_id": 14
+  },
+  {
+    "starship_id": 28,
+    "character_id": 29
+  },
+  {
+    "starship_id": 39,
+    "character_id": 11
+  },
+  {
+    "starship_id": 39,
+    "character_id": 35
+  },
+  {
+    "starship_id": 39,
+    "character_id": 60
+  },
+  {
+    "starship_id": 40,
+    "character_id": 39
+  },
+  {
+    "starship_id": 41,
+    "character_id": 44
+  },
+  {
+    "starship_id": 48,
+    "character_id": 10
+  },
+  {
+    "starship_id": 48,
+    "character_id": 58
+  },
+  {
+    "starship_id": 49,
+    "character_id": 35
+  },
+  {
+    "starship_id": 59,
+    "character_id": 10
+  },
+  {
+    "starship_id": 59,
+    "character_id": 11
+  },
+  {
+    "starship_id": 64,
+    "character_id": 10
+  },
+  {
+    "starship_id": 64,
+    "character_id": 35
+  },
+  {
+    "starship_id": 65,
+    "character_id": 10
+  },
+  {
+    "starship_id": 65,
+    "character_id": 11
+  },
+  {
+    "starship_id": 74,
+    "character_id": 10
+  },
+  {
+    "starship_id": 74,
+    "character_id": 79
+  }
+]
