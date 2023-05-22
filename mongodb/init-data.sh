@@ -1,0 +1,15 @@
+mongoimport --uri mongodb://localhost:27017/swapi --collection films --drop --file /swapi-data/films.json --jsonArray
+mongoimport --uri mongodb://localhost:27017/swapi --collection characters --drop --file /swapi-data/characters.json --jsonArray
+mongoimport --uri mongodb://localhost:27017/swapi --collection planets --drop --file /swapi-data/planets.json --jsonArray
+mongoimport --uri mongodb://localhost:27017/swapi --collection species --drop --file /swapi-data/species.json --jsonArray
+mongoimport --uri mongodb://localhost:27017/swapi --collection starships --drop --file /swapi-data/starships.json --jsonArray
+mongoimport --uri mongodb://localhost:27017/swapi --collection transports --drop --file /swapi-data/transports.json --jsonArray
+mongoimport --uri mongodb://localhost:27017/swapi --collection vehicles --drop --file /swapi-data/vehicles.json --jsonArray
+mongoimport --uri mongodb://localhost:27017/swapi --collection films_characters --drop --file /swapi-data/films_characters.json --jsonArray
+mongoimport --uri mongodb://localhost:27017/swapi --collection films_planets --drop --file /swapi-data/films_planets.json --jsonArray
+mongoimport --uri mongodb://localhost:27017/swapi --collection films_species --drop --file /swapi-data/films_species.json --jsonArray
+mongoimport --uri mongodb://localhost:27017/swapi --collection films_starships --drop --file /swapi-data/films_starships.json --jsonArray
+mongoimport --uri mongodb://localhost:27017/swapi --collection films_vehicles --drop --file /swapi-data/films_vehicles.json --jsonArray
+mongoimport --uri mongodb://localhost:27017/swapi --collection species_characters --drop --file /swapi-data/species_characters.json --jsonArray
+mongoimport --uri mongodb://localhost:27017/swapi --collection starships_characters --drop --file /swapi-data/starships_characters.json --jsonArray
+mongoimport --uri mongodb://localhost:27017/swapi --collection vehicles_characters --drop --file /swapi-data/vehicles_characters.json --jsonArray
