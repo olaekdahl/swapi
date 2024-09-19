@@ -9,3 +9,5 @@ Unfortunately swapi.co is not maintained anymore.
 ## What is this? 
 An "unofficial" fork of "swapi" from https://github.com/Juriy/swapi.
 
+:)
+
