@@ -3,10 +3,60 @@ import cors from 'cors';
 import jsonServer from 'json-server';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './swagger.js';
+import passport from 'passport';
+import { Strategy as LocalStrategy } from 'passport-local';
+import session from 'express-session';
 
 // Create an express web server
 const app = express();
 app.use(cors());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// Session configuration
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'swapi-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 } // 24 hours
+}));
+
+// Passport configuration
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Simple user store (in production, use a proper database)
+const users = [
+  { id: 1, username: 'admin', password: 'admin123', role: 'admin' },
+  { id: 2, username: 'user', password: 'user123', role: 'user' }
+];
+
+// Passport local strategy
+passport.use(new LocalStrategy((username, password, done) => {
+  const user = users.find(u => u.username === username && u.password === password);
+  if (user) {
+    return done(null, user);
+  }
+  return done(null, false, { message: 'Invalid credentials' });
+}));
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+  const user = users.find(u => u.id === id);
+  done(null, user);
+});
+
+// Authentication middleware
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect('/login');
+}
+
 // Add Swagger support
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/api/swagger.json', (_, res) => {
@@ -15,6 +65,75 @@ app.use('/api/swagger.json', (_, res) => {
 });
 // Set the port
 const port = process.env.PORT || 3000;
+
+// Authentication routes
+app.get('/login', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>SWAPI Login</title>
+      <link rel="stylesheet" href="/site.css" />
+    </head>
+    <body>
+      <header></header>
+      <main>
+        <h1>SWAPI Login</h1>
+        <form action="/login" method="post">
+          <div>
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+          </div>
+          <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+          </div>
+          <button type="submit">Login</button>
+        </form>
+        <p><a href="/">Back to Home</a></p>
+        <p><em>Demo credentials: admin/admin123 or user/user123</em></p>
+      </main>
+    </body>
+    </html>
+  `);
+});
+
+app.post('/login', passport.authenticate('local', {
+  successRedirect: '/admin',
+  failureRedirect: '/login'
+}));
+
+app.get('/logout', (req, res) => {
+  req.logout((err) => {
+    if (err) return next(err);
+    res.redirect('/');
+  });
+});
+
+app.get('/admin', ensureAuthenticated, (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>SWAPI Admin</title>
+      <link rel="stylesheet" href="/site.css" />
+    </head>
+    <body>
+      <header></header>
+      <main>
+        <h1>SWAPI Admin Dashboard</h1>
+        <p>Welcome, ${req.user.username}! Role: ${req.user.role}</p>
+        <h2>Admin Functions</h2>
+        <ul>
+          <li><a href="/api">Browse API Data</a></li>
+          <li><a href="/api-docs">API Documentation</a></li>
+        </ul>
+        <p><a href="/logout">Logout</a> | <a href="/">Home</a></p>
+      </main>
+    </body>
+    </html>
+  `);
+});
 
 // GET route for /api/films/:id/characters
 /**
