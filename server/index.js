@@ -337,9 +337,7 @@ app.get('/api/films/:id/vehicles', (req, res) => {
  */
 app.get('/api/species/:id/characters', (req, res) => {
   const { id } = req.params;
-  const junction_data = router.db.get('species_characters').filter({ species_id: +id }).value();
-  const character_ids = junction_data.map(item => item.character_id);
-  const characters = router.db.get('characters').value().filter(character => character_ids.includes(character.id)).map(character => ({ "id": character.id, "name": character.name }));
+  const characters = router.db.get('characters').filter(c => c.species_id === +id)
   res.json(characters);
 });
 
