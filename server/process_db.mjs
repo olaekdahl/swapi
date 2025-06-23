@@ -1,3 +1,9 @@
+// This is the program originally used to create the database.json file and the
+// json-data folder. It doesn't need to be run again.
+
+// To make changes to the data, directly edit database.json and the individual
+// files in json-data.
+
 import fs from 'fs';
 
 //const db = JSON.parse(fs.readFileSync('server/database_orig.json', 'utf8'));
@@ -59,14 +65,6 @@ for (let film of db.films) {
     db.films_vehicles.push({ film_id: film.id, vehicle_id: vehicleId });
   }
   delete film.vehicles;
-}
-
-db.species_characters = [];
-for (let species of db.species) {
-  for (let personId of species.people) {
-    db.species_characters.push({ species_id: species.id, character_id: personId });
-  }
-  delete species.people;
 }
 
 db.starships_characters = [];
