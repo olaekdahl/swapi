@@ -9,7 +9,8 @@
     "eye_color": "blue",
     "mass": "77",
     "homeworld": 1,
-    "birth_year": "19BBY"
+    "birth_year": "19BBY",
+    "species_id": 1
   },
   {
     "id": 2,
@@ -21,7 +22,8 @@
     "eye_color": "yellow",
     "mass": "75",
     "homeworld": 1,
-    "birth_year": "112BBY"
+    "birth_year": "112BBY",
+    "species_id": 2
   },
   {
     "id": 3,
@@ -33,7 +35,8 @@
     "eye_color": "red",
     "mass": "32",
     "homeworld": 8,
-    "birth_year": "33BBY"
+    "birth_year": "33BBY",
+    "species_id": 2
   },
   {
     "id": 4,
@@ -45,7 +48,8 @@
     "eye_color": "yellow",
     "mass": "136",
     "homeworld": 13,
-    "birth_year": "41.9BBY"
+    "birth_year": "41.9BBY",
+    "species_id": 1
   },
   {
     "id": 5,
@@ -57,7 +61,8 @@
     "eye_color": "brown",
     "mass": "49",
     "homeworld": 2,
-    "birth_year": "19BBY"
+    "birth_year": "19BBY",
+    "species_id": 1
   },
   {
     "id": 6,
@@ -69,7 +74,8 @@
     "eye_color": "blue",
     "mass": "120",
     "homeworld": 1,
-    "birth_year": "52BBY"
+    "birth_year": "52BBY",
+    "species_id": 1
   },
   {
     "id": 7,
@@ -81,7 +87,8 @@
     "eye_color": "blue",
     "mass": "75",
     "homeworld": 1,
-    "birth_year": "47BBY"
+    "birth_year": "47BBY",
+    "species_id": 1
   },
   {
     "id": 8,
@@ -93,7 +100,8 @@
     "eye_color": "red",
     "mass": "32",
     "homeworld": 1,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 2
   },
   {
     "id": 9,
@@ -105,7 +113,8 @@
     "eye_color": "brown",
     "mass": "84",
     "homeworld": 1,
-    "birth_year": "24BBY"
+    "birth_year": "24BBY",
+    "species_id": 1
   },
   {
     "id": 10,
@@ -117,7 +126,8 @@
     "eye_color": "blue-gray",
     "mass": "77",
     "homeworld": 20,
-    "birth_year": "57BBY"
+    "birth_year": "57BBY",
+    "species_id": 1
   },
   {
     "id": 11,
@@ -129,7 +139,8 @@
     "eye_color": "blue",
     "mass": "84",
     "homeworld": 1,
-    "birth_year": "41.9BBY"
+    "birth_year": "41.9BBY",
+    "species_id": 1
   },
   {
     "id": 12,
@@ -141,7 +152,8 @@
     "eye_color": "blue",
     "mass": "unknown",
     "homeworld": 21,
-    "birth_year": "64BBY"
+    "birth_year": "64BBY",
+    "species_id": 1
   },
   {
     "id": 13,
@@ -153,7 +165,8 @@
     "eye_color": "blue",
     "mass": "112",
     "homeworld": 14,
-    "birth_year": "200BBY"
+    "birth_year": "200BBY",
+    "species_id": 3
   },
   {
     "id": 14,
@@ -165,7 +178,8 @@
     "eye_color": "brown",
     "mass": "80",
     "homeworld": 22,
-    "birth_year": "29BBY"
+    "birth_year": "29BBY",
+    "species_id": 1
   },
   {
     "id": 15,
@@ -177,7 +191,8 @@
     "eye_color": "black",
     "mass": "74",
     "homeworld": 23,
-    "birth_year": "44BBY"
+    "birth_year": "44BBY",
+    "species_id": 4
   },
   {
     "id": 16,
@@ -189,7 +204,8 @@
     "eye_color": "orange",
     "mass": "1,358",
     "homeworld": 24,
-    "birth_year": "600BBY"
+    "birth_year": "600BBY",
+    "species_id": 5
   },
   {
     "id": 18,
@@ -201,7 +217,8 @@
     "eye_color": "hazel",
     "mass": "77",
     "homeworld": 22,
-    "birth_year": "21BBY"
+    "birth_year": "21BBY",
+    "species_id": 1
   },
   {
     "id": 19,
@@ -213,7 +230,8 @@
     "eye_color": "blue",
     "mass": "110",
     "homeworld": 26,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 1
   },
   {
     "id": 20,
@@ -225,7 +243,8 @@
     "eye_color": "brown",
     "mass": "17",
     "homeworld": 28,
-    "birth_year": "896BBY"
+    "birth_year": "896BBY",
+    "species_id": 6
   },
   {
     "id": 21,
@@ -237,7 +256,8 @@
     "eye_color": "yellow",
     "mass": "75",
     "homeworld": 8,
-    "birth_year": "82BBY"
+    "birth_year": "82BBY",
+    "species_id": 1
   },
   {
     "id": 22,
@@ -249,7 +269,8 @@
     "eye_color": "brown",
     "mass": "78.2",
     "homeworld": 10,
-    "birth_year": "31.5BBY"
+    "birth_year": "31.5BBY",
+    "species_id": 1
   },
   {
     "id": 23,
@@ -261,7 +282,8 @@
     "eye_color": "red",
     "mass": "140",
     "homeworld": 28,
-    "birth_year": "15BBY"
+    "birth_year": "15BBY",
+    "species_id": 2
   },
   {
     "id": 24,
@@ -273,7 +295,8 @@
     "eye_color": "red",
     "mass": "113",
     "homeworld": 29,
-    "birth_year": "53BBY"
+    "birth_year": "53BBY",
+    "species_id": 7
   },
   {
     "id": 25,
@@ -285,7 +308,8 @@
     "eye_color": "brown",
     "mass": "79",
     "homeworld": 30,
-    "birth_year": "31BBY"
+    "birth_year": "31BBY",
+    "species_id": 1
   },
   {
     "id": 26,
@@ -297,7 +321,8 @@
     "eye_color": "blue",
     "mass": "79",
     "homeworld": 6,
-    "birth_year": "37BBY"
+    "birth_year": "37BBY",
+    "species_id": 1
   },
   {
     "id": 27,
@@ -309,7 +334,8 @@
     "eye_color": "orange",
     "mass": "83",
     "homeworld": 31,
-    "birth_year": "41BBY"
+    "birth_year": "41BBY",
+    "species_id": 8
   },
   {
     "id": 28,
@@ -321,7 +347,8 @@
     "eye_color": "blue",
     "mass": "unknown",
     "homeworld": 32,
-    "birth_year": "48BBY"
+    "birth_year": "48BBY",
+    "species_id": 1
   },
   {
     "id": 29,
@@ -333,7 +360,8 @@
     "eye_color": "brown",
     "mass": "unknown",
     "homeworld": 28,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 1
   },
   {
     "id": 30,
@@ -345,7 +373,8 @@
     "eye_color": "brown",
     "mass": "20",
     "homeworld": 7,
-    "birth_year": "8BBY"
+    "birth_year": "8BBY",
+    "species_id": 9
   },
   {
     "id": 31,
@@ -357,7 +386,8 @@
     "eye_color": "black",
     "mass": "68",
     "homeworld": 33,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 10
   },
   {
     "id": 32,
@@ -369,7 +399,8 @@
     "eye_color": "blue",
     "mass": "89",
     "homeworld": 28,
-    "birth_year": "92BBY"
+    "birth_year": "92BBY",
+    "species_id": 1
   },
   {
     "id": 33,
@@ -381,7 +412,8 @@
     "eye_color": "red",
     "mass": "90",
     "homeworld": 18,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 11
   },
   {
     "id": 34,
@@ -393,11 +425,12 @@
     "eye_color": "blue",
     "mass": "unknown",
     "homeworld": 9,
-    "birth_year": "91BBY"
+    "birth_year": "91BBY",
+    "species_id": 1
   },
   {
     "id": 35,
-    "name": "Padmé Amidala",
+    "name": "Padm\u00e9 Amidala",
     "gender": "female",
     "skin_color": "light",
     "hair_color": "brown",
@@ -405,7 +438,8 @@
     "eye_color": "brown",
     "mass": "45",
     "homeworld": 8,
-    "birth_year": "46BBY"
+    "birth_year": "46BBY",
+    "species_id": 1
   },
   {
     "id": 36,
@@ -417,7 +451,8 @@
     "eye_color": "orange",
     "mass": "66",
     "homeworld": 8,
-    "birth_year": "52BBY"
+    "birth_year": "52BBY",
+    "species_id": 12
   },
   {
     "id": 37,
@@ -429,7 +464,8 @@
     "eye_color": "orange",
     "mass": "82",
     "homeworld": 8,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 12
   },
   {
     "id": 38,
@@ -441,11 +477,12 @@
     "eye_color": "orange",
     "mass": "unknown",
     "homeworld": 8,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 12
   },
   {
     "id": 39,
-    "name": "Ric Olié",
+    "name": "Ric Oli\u00e9",
     "gender": "male",
     "skin_color": "fair",
     "hair_color": "brown",
@@ -453,7 +490,8 @@
     "eye_color": "blue",
     "mass": "unknown",
     "homeworld": 8,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 1
   },
   {
     "id": 40,
@@ -465,7 +503,8 @@
     "eye_color": "yellow",
     "mass": "unknown",
     "homeworld": 34,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 13
   },
   {
     "id": 41,
@@ -477,7 +516,8 @@
     "eye_color": "orange",
     "mass": "40",
     "homeworld": 35,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 14
   },
   {
     "id": 42,
@@ -489,7 +529,8 @@
     "eye_color": "brown",
     "mass": "unknown",
     "homeworld": 8,
-    "birth_year": "62BBY"
+    "birth_year": "62BBY",
+    "species_id": 1
   },
   {
     "id": 43,
@@ -501,7 +542,8 @@
     "eye_color": "brown",
     "mass": "unknown",
     "homeworld": 1,
-    "birth_year": "72BBY"
+    "birth_year": "72BBY",
+    "species_id": 1
   },
   {
     "id": 44,
@@ -513,7 +555,8 @@
     "eye_color": "yellow",
     "mass": "80",
     "homeworld": 36,
-    "birth_year": "54BBY"
+    "birth_year": "54BBY",
+    "species_id": 22
   },
   {
     "id": 45,
@@ -525,7 +568,8 @@
     "eye_color": "pink",
     "mass": "unknown",
     "homeworld": 37,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 15
   },
   {
     "id": 46,
@@ -537,7 +581,8 @@
     "eye_color": "hazel",
     "mass": "55",
     "homeworld": 37,
-    "birth_year": "48BBY"
+    "birth_year": "48BBY",
+    "species_id": 15
   },
   {
     "id": 47,
@@ -549,7 +594,8 @@
     "eye_color": "unknown",
     "mass": "15",
     "homeworld": 38,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 16
   },
   {
     "id": 48,
@@ -561,7 +607,8 @@
     "eye_color": "yellow",
     "mass": "45",
     "homeworld": 39,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 17
   },
   {
     "id": 49,
@@ -573,7 +620,8 @@
     "eye_color": "black",
     "mass": "unknown",
     "homeworld": 40,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 18
   },
   {
     "id": 50,
@@ -585,7 +633,8 @@
     "eye_color": "orange",
     "mass": "65",
     "homeworld": 41,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 19
   },
   {
     "id": 51,
@@ -597,7 +646,8 @@
     "eye_color": "brown",
     "mass": "84",
     "homeworld": 42,
-    "birth_year": "72BBY"
+    "birth_year": "72BBY",
+    "species_id": 1
   },
   {
     "id": 52,
@@ -609,7 +659,8 @@
     "eye_color": "yellow",
     "mass": "82",
     "homeworld": 43,
-    "birth_year": "92BBY"
+    "birth_year": "92BBY",
+    "species_id": 20
   },
   {
     "id": 53,
@@ -621,7 +672,8 @@
     "eye_color": "black",
     "mass": "87",
     "homeworld": 44,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 21
   },
   {
     "id": 54,
@@ -633,7 +685,8 @@
     "eye_color": "brown",
     "mass": "unknown",
     "homeworld": 45,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 22
   },
   {
     "id": 55,
@@ -645,7 +698,8 @@
     "eye_color": "blue",
     "mass": "50",
     "homeworld": 9,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 23
   },
   {
     "id": 56,
@@ -657,7 +711,8 @@
     "eye_color": "orange",
     "mass": "unknown",
     "homeworld": 47,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 24
   },
   {
     "id": 57,
@@ -669,7 +724,8 @@
     "eye_color": "yellow",
     "mass": "unknown",
     "homeworld": 48,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 25
   },
   {
     "id": 58,
@@ -681,7 +737,8 @@
     "eye_color": "black",
     "mass": "80",
     "homeworld": 49,
-    "birth_year": "22BBY"
+    "birth_year": "22BBY",
+    "species_id": 26
   },
   {
     "id": 59,
@@ -693,7 +750,8 @@
     "eye_color": "blue",
     "mass": "unknown",
     "homeworld": 50,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 27
   },
   {
     "id": 60,
@@ -705,11 +763,12 @@
     "eye_color": "brown",
     "mass": "85",
     "homeworld": 8,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 1
   },
   {
     "id": 61,
-    "name": "Cordé",
+    "name": "Cord\u00e9",
     "gender": "female",
     "skin_color": "light",
     "hair_color": "brown",
@@ -717,7 +776,8 @@
     "eye_color": "brown",
     "mass": "unknown",
     "homeworld": 8,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 1
   },
   {
     "id": 62,
@@ -729,7 +789,8 @@
     "eye_color": "blue",
     "mass": "unknown",
     "homeworld": 1,
-    "birth_year": "82BBY"
+    "birth_year": "82BBY",
+    "species_id": 1
   },
   {
     "id": 63,
@@ -741,7 +802,8 @@
     "eye_color": "yellow",
     "mass": "80",
     "homeworld": 11,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 28
   },
   {
     "id": 64,
@@ -753,7 +815,8 @@
     "eye_color": "blue",
     "mass": "56.2",
     "homeworld": 51,
-    "birth_year": "58BBY"
+    "birth_year": "58BBY",
+    "species_id": 29
   },
   {
     "id": 65,
@@ -765,11 +828,12 @@
     "eye_color": "blue",
     "mass": "50",
     "homeworld": 51,
-    "birth_year": "40BBY"
+    "birth_year": "40BBY",
+    "species_id": 29
   },
   {
     "id": 66,
-    "name": "Dormé",
+    "name": "Dorm\u00e9",
     "gender": "female",
     "skin_color": "light",
     "hair_color": "brown",
@@ -777,7 +841,8 @@
     "eye_color": "brown",
     "mass": "unknown",
     "homeworld": 8,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 1
   },
   {
     "id": 67,
@@ -789,7 +854,8 @@
     "eye_color": "brown",
     "mass": "80",
     "homeworld": 52,
-    "birth_year": "102BBY"
+    "birth_year": "102BBY",
+    "species_id": 1
   },
   {
     "id": 68,
@@ -801,7 +867,8 @@
     "eye_color": "brown",
     "mass": "unknown",
     "homeworld": 2,
-    "birth_year": "67BBY"
+    "birth_year": "67BBY",
+    "species_id": 1
   },
   {
     "id": 69,
@@ -813,7 +880,8 @@
     "eye_color": "brown",
     "mass": "79",
     "homeworld": 53,
-    "birth_year": "66BBY"
+    "birth_year": "66BBY",
+    "species_id": 1
   },
   {
     "id": 70,
@@ -825,7 +893,8 @@
     "eye_color": "yellow",
     "mass": "55",
     "homeworld": 54,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 30
   },
   {
     "id": 71,
@@ -837,7 +906,8 @@
     "eye_color": "yellow",
     "mass": "102",
     "homeworld": 55,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 31
   },
   {
     "id": 72,
@@ -849,7 +919,8 @@
     "eye_color": "black",
     "mass": "88",
     "homeworld": 10,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 32
   },
   {
     "id": 73,
@@ -861,7 +932,8 @@
     "eye_color": "black",
     "mass": "unknown",
     "homeworld": 10,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 32
   },
   {
     "id": 74,
@@ -873,7 +945,8 @@
     "eye_color": "blue",
     "mass": "unknown",
     "homeworld": 9,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 1
   },
   {
     "id": 75,
@@ -885,7 +958,8 @@
     "eye_color": "red, blue",
     "mass": "unknown",
     "homeworld": 28,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 2
   },
   {
     "id": 76,
@@ -897,7 +971,8 @@
     "eye_color": "unknown",
     "mass": "48",
     "homeworld": 56,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 33
   },
   {
     "id": 77,
@@ -909,7 +984,8 @@
     "eye_color": "gold",
     "mass": "unknown",
     "homeworld": 57,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 34
   },
   {
     "id": 78,
@@ -921,7 +997,8 @@
     "eye_color": "black",
     "mass": "57",
     "homeworld": 58,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 35
   },
   {
     "id": 79,
@@ -933,7 +1010,8 @@
     "eye_color": "green, yellow",
     "mass": "159",
     "homeworld": 59,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 36
   },
   {
     "id": 80,
@@ -945,7 +1023,8 @@
     "eye_color": "blue",
     "mass": "136",
     "homeworld": 14,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 3
   },
   {
     "id": 81,
@@ -957,7 +1036,8 @@
     "eye_color": "brown",
     "mass": "79",
     "homeworld": 2,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 1
   },
   {
     "id": 82,
@@ -969,7 +1049,8 @@
     "eye_color": "white",
     "mass": "48",
     "homeworld": 60,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 38
   },
   {
     "id": 83,
@@ -981,6 +1062,7 @@
     "eye_color": "black",
     "mass": "80",
     "homeworld": 12,
-    "birth_year": "unknown"
+    "birth_year": "unknown",
+    "species_id": 37
   }
 ]

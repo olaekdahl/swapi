@@ -479,5 +479,18 @@
     "homeworld": 12,
     "average_lifespan": "700",
     "average_height": "190"
+  },
+  {
+    "id": 38,
+    "classification": "humanoid",
+    "name": "Umbaran",
+    "designation": "sentient",
+    "eye_colors": "white, blue, violet",
+    "skin_colors": "pale, bluish, grey",
+    "language": "Umbaran",
+    "hair_colors": "white, grey, none",
+    "homeworld": 60,
+    "average_lifespan": "unknown",
+    "average_height": "180"
   }
 ]
