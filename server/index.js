@@ -6,6 +6,8 @@ import swaggerSpec from './swagger.js';
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import session from 'express-session';
+import OpenAI from 'openai';
+import VectorDBSetup from './vector-db-setup.js';
 
 // Create an express web server
 const app = express();
@@ -134,6 +136,9 @@ app.get('/admin', ensureAuthenticated, (req, res) => {
     </html>
   `);
 });
+
+// Initialize json-server router (needed for custom API routes)
+const router = jsonServer.router('database.json');
 
 // GET route for /api/films/:id/characters
 /**
@@ -393,11 +398,181 @@ app.get('/api/planets/:id/characters', (req, res) => {
   res.json(characters);
 });
 
+// Initialize vector database instance
+const vectorDB = new VectorDBSetup();
 
-// Create a router
+// API endpoint to get available OpenAI models
+/**
+ * @swagger
+ * /api/models:
+ *   post:
+ *     summary: Get available OpenAI models
+ *     description: Returns a list of available OpenAI models for the provided API key
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               apiKey:
+ *                 type: string
+ *                 description: OpenAI API key
+ *     responses:
+ *       200:
+ *         description: OK
+ *       400:
+ *         description: Bad Request
+ *       401:
+ *         description: Unauthorized
+ */
+app.post('/api/models', async (req, res) => {
+  try {
+    const { apiKey } = req.body;
+    
+    if (!apiKey) {
+      return res.status(400).json({ error: 'API key is required' });
+    }
+
+    const openai = new OpenAI({ apiKey });
+    const models = await openai.models.list();
+    
+    // Filter for models that support chat completions
+    const chatModels = models.data
+      .filter(model => model.id.includes('gpt'))
+      .map(model => ({
+        id: model.id,
+        name: model.id,
+        created: model.created
+      }))
+      .sort((a, b) => b.created - a.created);
+
+    res.json({ models: chatModels });
+  } catch (error) {
+    console.error('Error fetching models:', error.message);
+    if (error.status === 401) {
+      res.status(401).json({ error: 'Invalid API key' });
+    } else {
+      res.status(500).json({ error: 'Failed to fetch models' });
+    }
+  }
+});
+
+// API endpoint for natural language query
+/**
+ * @swagger
+ * /api/query:
+ *   post:
+ *     summary: Process natural language query using RAG
+ *     description: Uses vector search and OpenAI to answer queries about Star Wars data
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               apiKey:
+ *                 type: string
+ *                 description: OpenAI API key
+ *               model:
+ *                 type: string
+ *                 description: OpenAI model to use
+ *               query:
+ *                 type: string
+ *                 description: Natural language query
+ *     responses:
+ *       200:
+ *         description: OK
+ *       400:
+ *         description: Bad Request
+ *       500:
+ *         description: Internal Server Error
+ */
+app.post('/api/query', async (req, res) => {
+  try {
+    const { apiKey, model, query } = req.body;
+    
+    if (!apiKey || !model || !query) {
+      return res.status(400).json({ error: 'API key, model, and query are required' });
+    }
+
+    // Check if vector database is initialized, if not, initialize it
+    let collection = await vectorDB.getCollection();
+    if (!collection) {
+      console.log('Initializing vector database...');
+      const initialized = await vectorDB.initialize(apiKey);
+      if (!initialized) {
+        return res.status(500).json({ error: 'Failed to initialize vector database' });
+      }
+      
+      const ingested = await vectorDB.ingestData();
+      if (!ingested) {
+        return res.status(500).json({ error: 'Failed to ingest data into vector database' });
+      }
+    }
+
+    // Search for similar content
+    const searchResults = await vectorDB.searchSimilar(query, apiKey, 5);
+    
+    // Extract relevant context from search results
+    const context = searchResults.documents[0].map((doc, index) => {
+      const metadata = searchResults.metadatas[0][index];
+      return {
+        content: doc,
+        metadata: metadata,
+        relevance: 1 - searchResults.distances[0][index] // Convert distance to relevance
+      };
+    });
+
+    // Prepare context for OpenAI
+    const contextText = context
+      .map(item => `${item.content} (Relevance: ${item.relevance.toFixed(2)})`)
+      .join('\n\n');
+
+    // Generate response using OpenAI
+    const openai = new OpenAI({ apiKey });
+    const completion = await openai.chat.completions.create({
+      model: model,
+      messages: [
+        {
+          role: 'system',
+          content: `You are an expert on Star Wars data. Use the following context to answer the user's question. If the context doesn't contain enough information to answer the question fully, say so. Always cite the relevant information from the context.
+
+Context:
+${contextText}`
+        },
+        {
+          role: 'user',
+          content: query
+        }
+      ],
+      max_tokens: 1000,
+      temperature: 0.7
+    });
+
+    const response = {
+      query: query,
+      answer: completion.choices[0].message.content,
+      context: context,
+      model: model,
+      timestamp: new Date().toISOString()
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error('Error processing query:', error.message);
+    if (error.status === 401) {
+      res.status(401).json({ error: 'Invalid API key' });
+    } else {
+      res.status(500).json({ error: 'Failed to process query', details: error.message });
+    }
+  }
+});
+
+// Create middlewares and mount json-server API
 const middlewares = jsonServer.defaults();
 app.use(middlewares);
-const router = jsonServer.router('database.json');
 app.use('/api', router);
 
 // Start the server
