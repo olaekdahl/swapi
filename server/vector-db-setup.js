@@ -4,14 +4,29 @@ import OpenAI from 'openai';
 
 class VectorDBSetup {
   constructor() {
-    this.client = new ChromaClient();
+    // Allow configuration via environment variables
+    const chromaHost = process.env.CHROMA_HOST || 'http://localhost';
+    const chromaPort = process.env.CHROMA_PORT || '8000';
+    const chromaUrl = `${chromaHost}:${chromaPort}`;
+    
+    this.client = new ChromaClient({
+      path: chromaUrl
+    });
     this.collectionName = 'swapi_data';
+    console.log(`ChromaDB client configured for: ${chromaUrl}`);
   }
 
   async initialize(openaiApiKey) {
     try {
       // Initialize OpenAI client
       this.openai = new OpenAI({ apiKey: openaiApiKey });
+      
+      // Test connection to ChromaDB server
+      try {
+        await this.client.heartbeat();
+      } catch (error) {
+        throw new Error('ChromaDB server is not running. Please start ChromaDB server with: pip install chromadb && chroma run --host 0.0.0.0 --port 8000');
+      }
       
       // Create or get collection
       try {

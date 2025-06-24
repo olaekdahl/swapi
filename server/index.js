@@ -414,14 +414,38 @@ const vectorDB = new VectorDBSetup();
  */
 app.get('/api/status', async (req, res) => {
   try {
-    const collection = await vectorDB.getCollection();
-    const isVectorDBReady = collection !== null;
+    // Test ChromaDB server connection
+    let chromaStatus = 'unknown';
+    let chromaError = null;
     
-    res.json({
+    try {
+      await vectorDB.client.heartbeat();
+      chromaStatus = 'server_running';
+      
+      // Check if collection exists
+      const collection = await vectorDB.getCollection();
+      if (collection !== null) {
+        chromaStatus = 'ready';
+      } else {
+        chromaStatus = 'not_initialized';
+      }
+    } catch (error) {
+      chromaStatus = 'server_not_running';
+      chromaError = error.message;
+    }
+    
+    const response = {
       api: 'running',
-      vectorDatabase: isVectorDBReady ? 'ready' : 'not_initialized',
+      vectorDatabase: chromaStatus,
       timestamp: new Date().toISOString()
-    });
+    };
+    
+    if (chromaError) {
+      response.error = chromaError;
+      response.suggestion = 'Start ChromaDB server with: pip install chromadb && chroma run --host 0.0.0.0 --port 8000';
+    }
+    
+    res.json(response);
   } catch (error) {
     res.json({
       api: 'running',
@@ -555,12 +579,29 @@ app.post('/api/query', async (req, res) => {
     }
 
     // Check if vector database is initialized, if not, initialize it
-    let collection = await vectorDB.getCollection();
+    let collection;
+    try {
+      collection = await vectorDB.getCollection();
+    } catch (error) {
+      // Check if this is a ChromaDB server connection issue
+      if (error.message.includes('connect') || error.message.includes('server')) {
+        return res.status(503).json({ 
+          error: 'ChromaDB server is not running',
+          suggestion: 'Start ChromaDB server with: pip install chromadb && chroma run --host 0.0.0.0 --port 8000',
+          details: error.message
+        });
+      }
+      throw error;
+    }
+    
     if (!collection) {
       console.log('Initializing vector database...');
       const initialized = await vectorDB.initialize(apiKey.trim());
       if (!initialized) {
-        return res.status(500).json({ error: 'Failed to initialize vector database' });
+        return res.status(500).json({ 
+          error: 'Failed to initialize vector database',
+          suggestion: 'Make sure ChromaDB server is running on port 8000'
+        });
       }
       
       console.log('Ingesting data into vector database...');
