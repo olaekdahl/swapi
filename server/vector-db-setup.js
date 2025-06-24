@@ -22,7 +22,8 @@ class VectorDBSetup {
       
       this.collection = await this.client.createCollection({
         name: this.collectionName,
-        metadata: { 'hnsw:space': 'cosine' }
+        metadata: { 'hnsw:space': 'cosine' },
+        embeddingFunction: null // Disable default embedding function since we provide custom embeddings
       });
       
       console.log('Vector database initialized successfully');
