@@ -1,6 +1,7 @@
 **/node_modules
 
-venv
+.venv/
+chroma/
 *.pyc
 staticfiles
 .env
