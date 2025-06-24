@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 
 function App() {
@@ -9,6 +9,26 @@ function App() {
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [status, setStatus] = useState(null);
+
+  // Check system status
+  const checkStatus = async () => {
+    try {
+      const res = await fetch('/api/status');
+      const data = await res.json();
+      setStatus(data);
+    } catch (err) {
+      console.error('Failed to check status:', err.message);
+    }
+  };
+
+  // Check status on component mount
+  React.useEffect(() => {
+    checkStatus();
+    // Check status every 30 seconds
+    const interval = setInterval(checkStatus, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Fetch available models when API key is provided
   const fetchModels = async () => {
@@ -93,6 +113,16 @@ function App() {
         <h1>Star Wars Natural Language Query</h1>
         <p>Ask questions about the Star Wars universe using natural language!</p>
 
+        {status && (
+          <div className={`status ${status.vectorDatabase === 'ready' ? 'status-ready' : 'status-pending'}`}>
+            <strong>System Status:</strong> API is {status.api}, 
+            Vector Database is {status.vectorDatabase}
+            {status.vectorDatabase === 'not_initialized' && (
+              <span> (will be initialized on first query)</span>
+            )}
+          </div>
+        )}
+
         <div className="api-key-section">
           <label htmlFor="apiKey">OpenAI API Key:</label>
           <div className="input-group">
@@ -138,8 +168,8 @@ function App() {
             id="query"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Ask anything about Star Wars... e.g., 'Who is Luke Skywalker?' or 'What is the Death Star?'"
-            rows={3}
+            placeholder="Ask anything about Star Wars... Examples:&#10;• Who is Luke Skywalker?&#10;• What is the Death Star?&#10;• Tell me about the planet Tatooine&#10;• What movies feature Darth Vader?&#10;• Which characters are from Naboo?"
+            rows={4}
             className="query-input"
           />
           <button

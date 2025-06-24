@@ -401,6 +401,37 @@ app.get('/api/planets/:id/characters', (req, res) => {
 // Initialize vector database instance
 const vectorDB = new VectorDBSetup();
 
+// API endpoint to check system status
+/**
+ * @swagger
+ * /api/status:
+ *   get:
+ *     summary: Get system status
+ *     description: Returns the status of the vector database and API
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+app.get('/api/status', async (req, res) => {
+  try {
+    const collection = await vectorDB.getCollection();
+    const isVectorDBReady = collection !== null;
+    
+    res.json({
+      api: 'running',
+      vectorDatabase: isVectorDBReady ? 'ready' : 'not_initialized',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.json({
+      api: 'running',
+      vectorDatabase: 'error',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
 // API endpoint to get available OpenAI models
 /**
  * @swagger
@@ -430,11 +461,16 @@ app.post('/api/models', async (req, res) => {
   try {
     const { apiKey } = req.body;
     
-    if (!apiKey) {
-      return res.status(400).json({ error: 'API key is required' });
+    if (!apiKey || typeof apiKey !== 'string' || apiKey.trim().length === 0) {
+      return res.status(400).json({ error: 'Valid API key is required' });
     }
 
-    const openai = new OpenAI({ apiKey });
+    // Basic API key format validation (should start with sk-)
+    if (!apiKey.startsWith('sk-')) {
+      return res.status(400).json({ error: 'Invalid API key format' });
+    }
+
+    const openai = new OpenAI({ apiKey: apiKey.trim() });
     const models = await openai.models.list();
     
     // Filter for models that support chat completions
@@ -450,8 +486,10 @@ app.post('/api/models', async (req, res) => {
     res.json({ models: chatModels });
   } catch (error) {
     console.error('Error fetching models:', error.message);
-    if (error.status === 401) {
+    if (error.status === 401 || error.code === 'invalid_api_key') {
       res.status(401).json({ error: 'Invalid API key' });
+    } else if (error.status === 429) {
+      res.status(429).json({ error: 'Rate limit exceeded. Please try again later.' });
     } else {
       res.status(500).json({ error: 'Failed to fetch models' });
     }
@@ -493,27 +531,48 @@ app.post('/api/query', async (req, res) => {
   try {
     const { apiKey, model, query } = req.body;
     
-    if (!apiKey || !model || !query) {
-      return res.status(400).json({ error: 'API key, model, and query are required' });
+    // Validate inputs
+    if (!apiKey || typeof apiKey !== 'string' || apiKey.trim().length === 0) {
+      return res.status(400).json({ error: 'Valid API key is required' });
+    }
+    
+    if (!model || typeof model !== 'string' || model.trim().length === 0) {
+      return res.status(400).json({ error: 'Valid model is required' });
+    }
+    
+    if (!query || typeof query !== 'string' || query.trim().length === 0) {
+      return res.status(400).json({ error: 'Valid query is required' });
+    }
+
+    // Basic API key format validation
+    if (!apiKey.startsWith('sk-')) {
+      return res.status(400).json({ error: 'Invalid API key format' });
+    }
+
+    // Query length validation
+    if (query.length > 1000) {
+      return res.status(400).json({ error: 'Query too long. Maximum 1000 characters allowed.' });
     }
 
     // Check if vector database is initialized, if not, initialize it
     let collection = await vectorDB.getCollection();
     if (!collection) {
       console.log('Initializing vector database...');
-      const initialized = await vectorDB.initialize(apiKey);
+      const initialized = await vectorDB.initialize(apiKey.trim());
       if (!initialized) {
         return res.status(500).json({ error: 'Failed to initialize vector database' });
       }
       
+      console.log('Ingesting data into vector database...');
       const ingested = await vectorDB.ingestData();
       if (!ingested) {
         return res.status(500).json({ error: 'Failed to ingest data into vector database' });
       }
+      console.log('Vector database setup complete');
     }
 
     // Search for similar content
-    const searchResults = await vectorDB.searchSimilar(query, apiKey, 5);
+    const searchResults = await vectorDB.searchSimilar(query.trim(), apiKey.trim(), 5);
     
     // Extract relevant context from search results
     const context = searchResults.documents[0].map((doc, index) => {
@@ -531,9 +590,9 @@ app.post('/api/query', async (req, res) => {
       .join('\n\n');
 
     // Generate response using OpenAI
-    const openai = new OpenAI({ apiKey });
+    const openai = new OpenAI({ apiKey: apiKey.trim() });
     const completion = await openai.chat.completions.create({
-      model: model,
+      model: model.trim(),
       messages: [
         {
           role: 'system',
@@ -544,7 +603,7 @@ ${contextText}`
         },
         {
           role: 'user',
-          content: query
+          content: query.trim()
         }
       ],
       max_tokens: 1000,
@@ -552,18 +611,22 @@ ${contextText}`
     });
 
     const response = {
-      query: query,
+      query: query.trim(),
       answer: completion.choices[0].message.content,
       context: context,
-      model: model,
+      model: model.trim(),
       timestamp: new Date().toISOString()
     };
 
     res.json(response);
   } catch (error) {
     console.error('Error processing query:', error.message);
-    if (error.status === 401) {
+    if (error.status === 401 || error.code === 'invalid_api_key') {
       res.status(401).json({ error: 'Invalid API key' });
+    } else if (error.status === 429) {
+      res.status(429).json({ error: 'Rate limit exceeded. Please try again later.' });
+    } else if (error.status === 400 && error.message.includes('model')) {
+      res.status(400).json({ error: 'Invalid model specified' });
     } else {
       res.status(500).json({ error: 'Failed to process query', details: error.message });
     }

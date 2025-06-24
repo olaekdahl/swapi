@@ -25,6 +25,24 @@ h1 + p {
   margin-bottom: 30px;
 }
 
+.status {
+  background-color: #f39c12;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.status-ready {
+  background-color: #27ae60;
+}
+
+.status-pending {
+  background-color: #f39c12;
+}
+
 .api-key-section, .model-section {
   margin-bottom: 20px;
 }
