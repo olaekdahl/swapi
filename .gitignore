@@ -1,6 +1,7 @@
 **/node_modules
 
-venv
+.venv/
+lancedb/
 *.pyc
 staticfiles
 .env
@@ -8,3 +9,6 @@ db.sqlite3
 .DS_Store
 .idea
 node_modules
+
+# React app build files (exclude from development but keep nlq-build for Docker)
+app/swapi/build/

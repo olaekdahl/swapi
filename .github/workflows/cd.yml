@@ -9,6 +9,29 @@ jobs:
         - name: 'Checkout GitHub Action'
           uses: actions/checkout@main
           
+        # Setup Node.js environment
+        - name: 'Setup Node.js'
+          uses: actions/setup-node@v3
+          with:
+            node-version: '18'
+            cache: 'npm'
+            cache-dependency-path: app/swapi/package-lock.json
+        
+        # Build React app
+        - name: 'Install React app dependencies'
+          run: |
+            cd app/swapi
+            npm ci
+        
+        - name: 'Build React app'
+          run: |
+            cd app/swapi
+            npm run build
+        
+        - name: 'Copy React build to server folder'
+          run: |
+            cp -r app/swapi/build server/nlq-build
+          
         - name: 'Login via Azure CLI'
           uses: azure/login@v1
           with:

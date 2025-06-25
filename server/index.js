@@ -6,6 +6,12 @@ import swaggerSpec from './swagger.js';
 import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import session from 'express-session';
+import OpenAI from 'openai';
+import VectorDBSetup from './vector-db-setup.js';
+import { ChatOpenAI } from '@langchain/openai';
+import { AgentExecutor, createToolCallingAgent } from 'langchain/agents';
+import { ChatPromptTemplate } from '@langchain/core/prompts';
+import { swapiTools, extractEntityIds } from './langchain-tools.js';
 
 // Create an express web server
 const app = express();
@@ -134,6 +140,9 @@ app.get('/admin', ensureAuthenticated, (req, res) => {
     </html>
   `);
 });
+
+// Initialize json-server router (needed for custom API routes)
+const router = jsonServer.router('database.json');
 
 // GET route for /api/films/:id/characters
 /**
@@ -393,11 +402,435 @@ app.get('/api/planets/:id/characters', (req, res) => {
   res.json(characters);
 });
 
+// Initialize vector database instance
+const vectorDB = new VectorDBSetup((type, message, data) => {
+  // Broadcast progress to all connected SSE clients
+  for (const [sessionId, connection] of sseConnections) {
+    try {
+      const payload = {
+        type,
+        message,
+        timestamp: new Date().toISOString(),
+        ...data
+      };
+      connection.write(`data: ${JSON.stringify(payload)}\n\n`);
+    } catch (error) {
+      // Connection might be closed, remove it
+      sseConnections.delete(sessionId);
+    }
+  }
+});
 
-// Create a router
+// Store for SSE connections
+const sseConnections = new Map();
+
+// SSE endpoint for real-time progress updates
+app.get('/api/progress/:sessionId', (req, res) => {
+  const sessionId = req.params.sessionId;
+  
+  // Set headers for SSE
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Cache-Control'
+  });
+
+  // Store connection
+  sseConnections.set(sessionId, res);
+
+  // Send initial connection confirmation
+  res.write(`data: ${JSON.stringify({ type: 'connected', sessionId })}\n\n`);
+
+  // Handle client disconnect
+  req.on('close', () => {
+    sseConnections.delete(sessionId);
+  });
+});
+
+// Helper function to send progress updates
+function sendProgress(sessionId, type, message, data = {}) {
+  const connection = sseConnections.get(sessionId);
+  if (connection) {
+    const payload = {
+      type,
+      message,
+      timestamp: new Date().toISOString(),
+      ...data
+    };
+    connection.write(`data: ${JSON.stringify(payload)}\n\n`);
+  }
+}
+
+// API endpoint to check system status
+/**
+ * @swagger
+ * /api/status:
+ *   get:
+ *     summary: Get system status
+ *     description: Returns the status of the vector database and API
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+app.get('/api/status', async (req, res) => {
+  try {
+    // Test LanceDB status
+    let dbStatus = 'unknown';
+    let dbError = null;
+    
+    try {
+      dbStatus = await vectorDB.getStatus();
+    } catch (error) {
+      dbStatus = 'error';
+      dbError = error.message;
+    }
+    
+    const response = {
+      api: 'running',
+      vectorDatabase: dbStatus,
+      timestamp: new Date().toISOString()
+    };
+    
+    if (dbError) {
+      response.error = dbError;
+    }
+    
+    res.json(response);
+  } catch (error) {
+    res.json({
+      api: 'running',
+      vectorDatabase: 'error',
+      error: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+// API endpoint to get available OpenAI models
+/**
+ * @swagger
+ * /api/models:
+ *   post:
+ *     summary: Get available OpenAI models
+ *     description: Returns a list of available OpenAI models for the provided API key
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               apiKey:
+ *                 type: string
+ *                 description: OpenAI API key
+ *     responses:
+ *       200:
+ *         description: OK
+ *       400:
+ *         description: Bad Request
+ *       401:
+ *         description: Unauthorized
+ */
+app.post('/api/models', async (req, res) => {
+  try {
+    const { apiKey } = req.body;
+    
+    if (!apiKey || typeof apiKey !== 'string' || apiKey.trim().length === 0) {
+      return res.status(400).json({ error: 'Valid API key is required' });
+    }
+
+    // Basic API key format validation (should start with sk-)
+    if (!apiKey.startsWith('sk-')) {
+      return res.status(400).json({ error: 'Invalid API key format' });
+    }
+
+    const openai = new OpenAI({ apiKey: apiKey.trim() });
+    const models = await openai.models.list();
+    
+    // Filter for models that support chat completions
+    const chatModels = models.data
+      .filter(model => model.id.includes('gpt'))
+      .map(model => ({
+        id: model.id,
+        name: model.id,
+        created: model.created
+      }))
+      .sort((a, b) => b.created - a.created);
+
+    res.json({ models: chatModels });
+  } catch (error) {
+    console.error('Error fetching models:', error.message);
+    if (error.status === 401 || error.code === 'invalid_api_key') {
+      res.status(401).json({ error: 'Invalid API key' });
+    } else if (error.status === 429) {
+      res.status(429).json({ error: 'Rate limit exceeded. Please try again later.' });
+    } else {
+      res.status(500).json({ error: 'Failed to fetch models' });
+    }
+  }
+});
+
+// API endpoint for natural language query
+/**
+ * @swagger
+ * /api/query:
+ *   post:
+ *     summary: Process natural language query using RAG
+ *     description: Uses vector search and OpenAI to answer queries about Star Wars data
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               apiKey:
+ *                 type: string
+ *                 description: OpenAI API key
+ *               model:
+ *                 type: string
+ *                 description: OpenAI model to use
+ *               query:
+ *                 type: string
+ *                 description: Natural language query
+ *     responses:
+ *       200:
+ *         description: OK
+ *       400:
+ *         description: Bad Request
+ *       500:
+ *         description: Internal Server Error
+ */
+app.post('/api/query', async (req, res) => {
+  try {
+    const { apiKey, model, query, sessionId } = req.body;
+    
+    // Validate inputs
+    if (!apiKey || typeof apiKey !== 'string' || apiKey.trim().length === 0) {
+      return res.status(400).json({ error: 'Valid API key is required' });
+    }
+    
+    if (!model || typeof model !== 'string' || model.trim().length === 0) {
+      return res.status(400).json({ error: 'Valid model is required' });
+    }
+    
+    if (!query || typeof query !== 'string' || query.trim().length === 0) {
+      return res.status(400).json({ error: 'Valid query is required' });
+    }
+
+    // Basic API key format validation
+    if (!apiKey.startsWith('sk-')) {
+      return res.status(400).json({ error: 'Invalid API key format' });
+    }
+
+    // Query length validation
+    if (query.length > 1000) {
+      return res.status(400).json({ error: 'Query too long. Maximum 1000 characters allowed.' });
+    }
+
+    // Send initial progress
+    if (sessionId) {
+      sendProgress(sessionId, 'query_start', 'Starting query processing...', { query });
+    }
+
+    // Check if vector database is initialized, if not, initialize it
+    let collection;
+    try {
+      if (sessionId) {
+        sendProgress(sessionId, 'query_step', 'Checking vector database status...');
+      }
+      collection = await vectorDB.getCollection();
+    } catch (error) {
+      // Check if this is a LanceDB connection issue
+      if (error.message.includes('connect') || error.message.includes('server')) {
+        return res.status(503).json({ 
+          error: 'Vector database connection failed',
+          suggestion: 'Make sure the vector database is properly initialized',
+          details: error.message
+        });
+      }
+      throw error;
+    }
+    
+    if (!collection) {
+      if (sessionId) {
+        sendProgress(sessionId, 'query_step', 'Vector database not initialized. Initializing now...');
+      }
+      console.log('Initializing vector database...');
+      const initialized = await vectorDB.initialize(apiKey.trim());
+      if (!initialized) {
+        return res.status(500).json({ 
+          error: 'Failed to initialize vector database',
+          suggestion: 'Check OpenAI API key and network connectivity'
+        });
+      }
+      
+      if (sessionId) {
+        sendProgress(sessionId, 'query_step', 'Ingesting data into vector database...');
+      }
+      console.log('Ingesting data into vector database...');
+      const ingested = await vectorDB.ingestData();
+      if (!ingested) {
+        return res.status(500).json({ error: 'Failed to ingest data into vector database' });
+      }
+      console.log('Vector database setup complete');
+    }
+
+    // Vector search phase
+    if (sessionId) {
+      sendProgress(sessionId, 'query_step', 'Performing vector similarity search...', { query });
+    }
+
+    // First, get initial context from vector search
+    const isAttributeQuery = /\b(red|blue|green|yellow|brown|black|white|orange|purple|pink)\s+(eyes?|hair|skin)\b/i.test(query.trim()) ||
+                            /\beyes?\s+(are|is)?\s*(red|blue|green|yellow|brown|black|white|orange|purple|pink)\b/i.test(query.trim());
+    const searchLimit = isAttributeQuery ? 10 : 5;
+    const searchResults = await vectorDB.searchSimilar(query.trim(), apiKey.trim(), searchLimit);
+    
+    // Extract relevant context from search results
+    const context = searchResults.documents[0].map((doc, index) => {
+      const metadata = searchResults.metadatas[0][index];
+      return {
+        content: doc,
+        metadata: metadata,
+        relevance: 1 - searchResults.distances[0][index] // Convert distance to relevance
+      };
+    });
+
+    if (sessionId) {
+      sendProgress(sessionId, 'query_step', `Found ${context.length} relevant documents from vector search`, {
+        contextCount: context.length,
+        isAttributeQuery
+      });
+    }
+
+    // Extract entity IDs from context for potential API calls
+    const entityIds = extractEntityIds(context);
+    
+    if (sessionId) {
+      sendProgress(sessionId, 'query_step', 'Initializing LangChain agent with API tools...');
+    }
+
+    // Initialize LangChain ChatOpenAI model
+    const llm = new ChatOpenAI({
+      apiKey: apiKey.trim(),
+      model: model.trim(),
+      temperature: 0.7,
+    });
+
+    // Create a prompt template for the agent
+    const prompt = ChatPromptTemplate.fromMessages([
+      ['system', `You are an expert on Star Wars data with access to detailed information through API tools. 
+
+Initial Context from Vector Search:
+{context}
+
+You have access to tools that can get detailed information about characters, films, planets, starships, species, and vehicles. Use these tools when you need more specific details beyond what's provided in the initial context.
+
+Guidelines:
+1. Start by analyzing the initial context provided
+2. If you need more details about specific entities (like character films, planet details, etc.), use the appropriate tools
+3. For attribute-based queries (like "characters with red eyes"), use the search_characters tool
+4. Always provide comprehensive answers citing both the initial context and any additional details from tool calls
+5. Be specific about sources and include relevant details like character names, film titles, etc.
+
+Available tools can help you get:
+- Detailed character information and their films
+- Film details and cast information  
+- Planet information and inhabitants
+- Starship and vehicle details
+- Species information and characters
+- Search functionality for attribute-based queries
+
+Use the tools strategically to provide the most complete and accurate answer possible.`],
+      ['human', '{input}'],
+      ['placeholder', '{agent_scratchpad}']
+    ]);
+
+    // Create the agent with tools
+    const agent = await createToolCallingAgent({
+      llm,
+      tools: swapiTools,
+      prompt,
+    });
+
+    // Create agent executor
+    const agentExecutor = new AgentExecutor({
+      agent,
+      tools: swapiTools,
+      verbose: true,
+      maxIterations: 10,
+    });
+
+    if (sessionId) {
+      sendProgress(sessionId, 'query_step', 'Executing LangChain agent with context and tools...');
+    }
+
+    // Prepare context text for the agent
+    const contextText = context
+      .map(item => `${item.content} (Relevance: ${item.relevance.toFixed(2)})`)
+      .join('\n\n');
+
+    // Execute the agent with the query and context
+    const result = await agentExecutor.invoke({
+      input: query.trim(),
+      context: contextText
+    });
+
+    if (sessionId) {
+      sendProgress(sessionId, 'query_complete', 'Query processing completed successfully');
+    }
+
+    const response = {
+      query: query.trim(),
+      answer: result.output,
+      context: context,
+      model: model.trim(),
+      timestamp: new Date().toISOString(),
+      enhanced: true, // Flag to indicate this used LangChain tools
+      processingSteps: [
+        'Vector similarity search',
+        'Context extraction',
+        'LangChain agent execution',
+        'API tool integration'
+      ]
+    };
+
+    res.json(response);
+  } catch (error) {
+    console.error('Error processing query:', error.message);
+    if (error.status === 401 || error.code === 'invalid_api_key') {
+      res.status(401).json({ error: 'Invalid API key' });
+    } else if (error.status === 429) {
+      res.status(429).json({ error: 'Rate limit exceeded. Please try again later.' });
+    } else if (error.status === 400 && error.message.includes('model')) {
+      res.status(400).json({ error: 'Invalid model specified' });
+    } else {
+      res.status(500).json({ error: 'Failed to process query', details: error.message });
+    }
+  }
+});
+
+// Serve React app at /nlq route
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Serve static files for the React app at /nlq
+app.use('/nlq', express.static(path.join(__dirname, 'nlq-build')));
+
+// Serve the React app's index.html for any /nlq/* routes (SPA routing)
+app.get('/nlq/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'nlq-build', 'index.html'));
+});
+
+// Create middlewares and mount json-server API
 const middlewares = jsonServer.defaults();
 app.use(middlewares);
-const router = jsonServer.router('database.json');
 app.use('/api', router);
 
 // Start the server
