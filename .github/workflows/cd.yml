@@ -1,5 +1,8 @@
-on: [push]
-name: Push_To_ACR_And_Deploy_To_WebApp
+name: Push_To_ACR_And_Deploy_To_Azure_WebApp
+on: 
+  push:
+    paths-ignore:
+      - 'README.md'
 
 jobs:
     build-and-deploy:
