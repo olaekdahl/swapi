@@ -408,15 +408,15 @@ class VectorDBSetup {
         metadatas: [results.map(r => ({
           entity_type: r.entity_type,
           entity_id: r.entity_id,
-          name: r.name,
-          title: r.title,
-          episode_id: r.episode_id,
-          director: r.director,
-          producer: r.producer,
-          homeworld: r.homeworld,
-          species: r.species
+          name: r.name || undefined,
+          title: r.title || undefined,
+          episode_id: r.episode_id || undefined,
+          director: r.director || undefined,
+          producer: r.producer || undefined,
+          homeworld: r.homeworld || undefined,
+          species: r.species || undefined
         }))],
-        distances: [results.map(r => r._distance)]
+        distances: [results.map(r => r._distance || 0)]
       };
       
       return formattedResults;
