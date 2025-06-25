@@ -186,7 +186,7 @@ Process a natural language query using RAG.
 
 3. **Use the Interface**:
    - **Classic API**: Visit http://localhost:3000 for API documentation and endpoints
-   - **Natural Language Queries**: Visit http://localhost:3000/nlq or the React app
+   - **Natural Language Queries**: Visit http://localhost:3001/nlq
    - Enter your OpenAI API key
    - Click "Load Models" to fetch available GPT models
    - Select a model from the dropdown
