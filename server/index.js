@@ -813,6 +813,21 @@ Use the tools strategically to provide the most complete and accurate answer pos
   }
 });
 
+// Serve React app at /nlq route
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Serve static files for the React app at /nlq
+app.use('/nlq', express.static(path.join(__dirname, 'nlq-build')));
+
+// Serve the React app's index.html for any /nlq/* routes (SPA routing)
+app.get('/nlq/*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'nlq-build', 'index.html'));
+});
+
 // Create middlewares and mount json-server API
 const middlewares = jsonServer.defaults();
 app.use(middlewares);
