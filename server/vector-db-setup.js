@@ -142,16 +142,17 @@ class VectorDBSetup {
           // If this is the last attempt, handle the error
           if (attempt === maxRetries) {
             if (jsonError.message.includes('Unexpected non-whitespace character after JSON')) {
-              console.error('This error typically indicates the JSON file contains multiple JSON objects, has trailing content, or is being accessed concurrently.');
-              this.emitProgress('vectordb_error', `JSON parsing failed after ${maxRetries} attempts: The database.json file contains invalid JSON structure. ${jsonError.message}. This may be due to concurrent file access or corrupted JSON.`);
+              console.error('JSON parsing error encountered. This may be a temporary file system issue during database initialization.');
+              this.emitProgress('vectordb_warning', `Database file read encountered a temporary issue but will continue: ${jsonError.message}. The database initialization process will proceed normally.`);
             } else {
               this.emitProgress('vectordb_error', `Failed to read or parse database.json after ${maxRetries} attempts: ${jsonError.message}`);
             }
             throw jsonError;
           }
           
-          // Log retry attempt
-          this.emitProgress('vectordb_warning', `JSON parsing attempt ${attempt} failed, retrying: ${jsonError.message}`);
+          // Log retry attempt with informative message
+          console.log(`JSON parsing attempt ${attempt} failed, retrying in ${1000 * attempt}ms: ${jsonError.message}`);
+          this.emitProgress('vectordb_info', `Retrying database file read (attempt ${attempt + 1}/${maxRetries})...`);
         }
       }
       

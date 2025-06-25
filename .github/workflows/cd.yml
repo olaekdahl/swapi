@@ -26,6 +26,13 @@ jobs:
             cd app/swapi
             npm ci
         
+        - name: 'Inject commit SHA into React app source files'
+          run: |
+            cd app/swapi
+            # Inject commit SHA into index.html and App.js
+            sed -i "s/PLACEHOLDER_COMMIT_SHA/${{ github.sha }}/g" public/index.html
+            sed -i "s/PLACEHOLDER_COMMIT_SHA/${{ github.sha }}/g" src/App.js
+        
         - name: 'Build React app'
           run: |
             cd app/swapi
