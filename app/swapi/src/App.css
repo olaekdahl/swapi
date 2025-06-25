@@ -507,3 +507,16 @@ label {
 .progress-updates::-webkit-scrollbar-thumb:hover {
   background: #a1a1a1;
 }
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .input-group {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .fetch-models-btn {
+    width: 100%;
+    justify-self: stretch;
+  }
+}
