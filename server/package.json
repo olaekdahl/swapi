@@ -18,7 +18,7 @@
     "axios": "^1.7.0",
     "cors": "^2.8.5",
     "express-session": "^1.18.1",
-    "json-server": "^0.17.3",
+    "json-server": "^0.17.4",
     "langchain": "^0.3.0",
     "openai": "^5.7.0",
     "passport": "^0.7.0",
