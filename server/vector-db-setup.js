@@ -82,8 +82,8 @@ class VectorDBSetup {
         if (Array.isArray(entities)) {
           for (const entity of entities) {
             try {
-              // Create a comprehensive text representation of the entity
-              const textContent = this.createTextContent(entityType, entity);
+              // Create a comprehensive text representation of the entity with relationships
+              const textContent = this.createTextContent(entityType, entity, dbData);
               
               // Generate embedding
               const embedding = await this.generateEmbedding(textContent);
@@ -122,7 +122,7 @@ class VectorDBSetup {
     }
   }
 
-  createTextContent(entityType, entity) {
+  createTextContent(entityType, entity, dbData) {
     const content = [];
     
     // Add entity type and basic info
@@ -145,7 +145,249 @@ class VectorDBSetup {
       }
     }
     
+    // Add relationship information
+    this.addRelationshipInfo(content, entityType, entity, dbData);
+    
     return content.join('. ');
+  }
+
+  addRelationshipInfo(content, entityType, entity, dbData) {
+    if (!entity.id || !dbData) return;
+
+    try {
+      if (entityType === 'characters') {
+        // Add films this character appears in
+        const filmCharacters = dbData.films_characters || [];
+        const characterFilms = filmCharacters
+          .filter(fc => fc.character_id === entity.id)
+          .map(fc => fc.film_id);
+        
+        if (characterFilms.length > 0) {
+          const films = dbData.films || [];
+          const filmTitles = films
+            .filter(film => characterFilms.includes(film.id))
+            .map(film => film.title);
+          
+          if (filmTitles.length > 0) {
+            content.push(`Appears in movies: ${filmTitles.join(', ')}`);
+          }
+        }
+
+        // Add starships this character pilots
+        const starshipCharacters = dbData.starships_characters || [];
+        const characterStarships = starshipCharacters
+          .filter(sc => sc.character_id === entity.id)
+          .map(sc => sc.starship_id);
+        
+        if (characterStarships.length > 0) {
+          const starships = dbData.starships || [];
+          const starshipNames = starships
+            .filter(ship => characterStarships.includes(ship.id))
+            .map(ship => ship.name || ship.starship_class);
+          
+          if (starshipNames.length > 0) {
+            content.push(`Pilots starships: ${starshipNames.join(', ')}`);
+          }
+        }
+
+        // Add vehicles this character uses
+        const vehicleCharacters = dbData.vehicles_characters || [];
+        const characterVehicles = vehicleCharacters
+          .filter(vc => vc.character_id === entity.id)
+          .map(vc => vc.vehicle_id);
+        
+        if (characterVehicles.length > 0) {
+          const vehicles = dbData.vehicles || [];
+          const vehicleNames = vehicles
+            .filter(vehicle => characterVehicles.includes(vehicle.id))
+            .map(vehicle => vehicle.name || vehicle.vehicle_class);
+          
+          if (vehicleNames.length > 0) {
+            content.push(`Uses vehicles: ${vehicleNames.join(', ')}`);
+          }
+        }
+
+      } else if (entityType === 'films') {
+        // Add characters that appear in this film
+        const filmCharacters = dbData.films_characters || [];
+        const filmCharacterIds = filmCharacters
+          .filter(fc => fc.film_id === entity.id)
+          .map(fc => fc.character_id);
+        
+        if (filmCharacterIds.length > 0) {
+          const characters = dbData.characters || [];
+          const characterNames = characters
+            .filter(char => filmCharacterIds.includes(char.id))
+            .map(char => char.name);
+          
+          if (characterNames.length > 0) {
+            content.push(`Features characters: ${characterNames.join(', ')}`);
+          }
+        }
+
+        // Add planets that appear in this film
+        const filmPlanets = dbData.films_planets || [];
+        const filmPlanetIds = filmPlanets
+          .filter(fp => fp.film_id === entity.id)
+          .map(fp => fp.planet_id);
+        
+        if (filmPlanetIds.length > 0) {
+          const planets = dbData.planets || [];
+          const planetNames = planets
+            .filter(planet => filmPlanetIds.includes(planet.id))
+            .map(planet => planet.name);
+          
+          if (planetNames.length > 0) {
+            content.push(`Features planets: ${planetNames.join(', ')}`);
+          }
+        }
+
+        // Add starships that appear in this film
+        const filmStarships = dbData.films_starships || [];
+        const filmStarshipIds = filmStarships
+          .filter(fs => fs.film_id === entity.id)
+          .map(fs => fs.starship_id);
+        
+        if (filmStarshipIds.length > 0) {
+          const starships = dbData.starships || [];
+          const starshipNames = starships
+            .filter(ship => filmStarshipIds.includes(ship.id))
+            .map(ship => ship.name || ship.starship_class);
+          
+          if (starshipNames.length > 0) {
+            content.push(`Features starships: ${starshipNames.join(', ')}`);
+          }
+        }
+
+      } else if (entityType === 'starships') {
+        // Add characters that pilot this starship
+        const starshipCharacters = dbData.starships_characters || [];
+        const starshipCharacterIds = starshipCharacters
+          .filter(sc => sc.starship_id === entity.id)
+          .map(sc => sc.character_id);
+        
+        if (starshipCharacterIds.length > 0) {
+          const characters = dbData.characters || [];
+          const characterNames = characters
+            .filter(char => starshipCharacterIds.includes(char.id))
+            .map(char => char.name);
+          
+          if (characterNames.length > 0) {
+            content.push(`Piloted by: ${characterNames.join(', ')}`);
+          }
+        }
+
+        // Add films this starship appears in
+        const filmStarships = dbData.films_starships || [];
+        const starshipFilms = filmStarships
+          .filter(fs => fs.starship_id === entity.id)
+          .map(fs => fs.film_id);
+        
+        if (starshipFilms.length > 0) {
+          const films = dbData.films || [];
+          const filmTitles = films
+            .filter(film => starshipFilms.includes(film.id))
+            .map(film => film.title);
+          
+          if (filmTitles.length > 0) {
+            content.push(`Appears in movies: ${filmTitles.join(', ')}`);
+          }
+        }
+
+      } else if (entityType === 'vehicles') {
+        // Add characters that use this vehicle
+        const vehicleCharacters = dbData.vehicles_characters || [];
+        const vehicleCharacterIds = vehicleCharacters
+          .filter(vc => vc.vehicle_id === entity.id)
+          .map(vc => vc.character_id);
+        
+        if (vehicleCharacterIds.length > 0) {
+          const characters = dbData.characters || [];
+          const characterNames = characters
+            .filter(char => vehicleCharacterIds.includes(char.id))
+            .map(char => char.name);
+          
+          if (characterNames.length > 0) {
+            content.push(`Used by: ${characterNames.join(', ')}`);
+          }
+        }
+
+        // Add films this vehicle appears in
+        const filmVehicles = dbData.films_vehicles || [];
+        const vehicleFilms = filmVehicles
+          .filter(fv => fv.vehicle_id === entity.id)
+          .map(fv => fv.film_id);
+        
+        if (vehicleFilms.length > 0) {
+          const films = dbData.films || [];
+          const filmTitles = films
+            .filter(film => vehicleFilms.includes(film.id))
+            .map(film => film.title);
+          
+          if (filmTitles.length > 0) {
+            content.push(`Appears in movies: ${filmTitles.join(', ')}`);
+          }
+        }
+
+      } else if (entityType === 'planets') {
+        // Add films this planet appears in
+        const filmPlanets = dbData.films_planets || [];
+        const planetFilms = filmPlanets
+          .filter(fp => fp.planet_id === entity.id)
+          .map(fp => fp.film_id);
+        
+        if (planetFilms.length > 0) {
+          const films = dbData.films || [];
+          const filmTitles = films
+            .filter(film => planetFilms.includes(film.id))
+            .map(film => film.title);
+          
+          if (filmTitles.length > 0) {
+            content.push(`Appears in movies: ${filmTitles.join(', ')}`);
+          }
+        }
+
+        // Add characters from this planet
+        const characters = dbData.characters || [];
+        const planetCharacters = characters
+          .filter(char => char.homeworld === entity.id)
+          .map(char => char.name);
+        
+        if (planetCharacters.length > 0) {
+          content.push(`Home to characters: ${planetCharacters.join(', ')}`);
+        }
+
+      } else if (entityType === 'species') {
+        // Add films this species appears in
+        const filmSpecies = dbData.films_species || [];
+        const speciesFilms = filmSpecies
+          .filter(fs => fs.species_id === entity.id)
+          .map(fs => fs.film_id);
+        
+        if (speciesFilms.length > 0) {
+          const films = dbData.films || [];
+          const filmTitles = films
+            .filter(film => speciesFilms.includes(film.id))
+            .map(film => film.title);
+          
+          if (filmTitles.length > 0) {
+            content.push(`Appears in movies: ${filmTitles.join(', ')}`);
+          }
+        }
+
+        // Add characters of this species
+        const characters = dbData.characters || [];
+        const speciesCharacters = characters
+          .filter(char => char.species_id === entity.id)
+          .map(char => char.name);
+        
+        if (speciesCharacters.length > 0) {
+          content.push(`Characters of this species: ${speciesCharacters.join(', ')}`);
+        }
+      }
+    } catch (error) {
+      console.error(`Error adding relationship info for ${entityType}:`, error.message);
+    }
   }
 
   extractMetadata(entity) {
