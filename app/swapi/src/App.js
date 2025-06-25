@@ -381,6 +381,18 @@ function App() {
           </div>
         )}
       </div>
+      
+      {/* Version information */}
+      <div className="version-info" style={{ 
+        fontSize: '0.8em', 
+        color: '#666', 
+        textAlign: 'center', 
+        marginTop: '2rem', 
+        padding: '1rem',
+        borderTop: '1px solid #eee'
+      }}>
+        Version: commit 12d5e44b58a977138c9d040186e825a4d18aae19
+      </div>
     </div>
   );
 }
