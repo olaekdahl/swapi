@@ -59,7 +59,26 @@ class VectorDBSetup {
       });
       return response.data[0].embedding;
     } catch (error) {
-      console.error('Failed to generate embedding:', error.message);
+      // Enhanced error logging for better debugging
+      console.error('Failed to generate embedding:', {
+        message: error.message,
+        status: error.status,
+        type: error.type,
+        code: error.code,
+        textLength: text ? text.length : 0,
+        textPreview: text ? text.substring(0, 100) + '...' : 'No text provided'
+      });
+      
+      // Check if this is a JSON parsing error from OpenAI response
+      if (error.message && error.message.includes('Unexpected non-whitespace character after JSON')) {
+        console.error('Detailed JSON parsing error context:', {
+          errorPosition: error.message.match(/position (\d+)/)?.[1] || 'unknown',
+          responseData: error.response?.data || 'No response data available',
+          headers: error.response?.headers || 'No headers available'
+        });
+        this.emitProgress('vectordb_warning', `OpenAI API returned malformed JSON response. This may be due to rate limiting or server issues. Error: ${error.message}`);
+      }
+      
       throw error;
     }
   }
@@ -67,8 +86,41 @@ class VectorDBSetup {
   async ingestData() {
     try {
       this.emitProgress('vectordb_ingest', 'Reading database.json file...');
-      // Read the database.json file
-      const dbData = JSON.parse(fs.readFileSync('./database.json', 'utf8'));
+      
+      // Enhanced JSON file reading with better error handling
+      let dbData;
+      try {
+        const fileContent = fs.readFileSync('./database.json', 'utf8');
+        console.log(`Database file size: ${fileContent.length} characters`);
+        
+        // Check for common JSON file issues
+        if (fileContent.trim().length === 0) {
+          throw new Error('Database file is empty');
+        }
+        
+        if (!fileContent.trim().startsWith('{') && !fileContent.trim().startsWith('[')) {
+          throw new Error('Database file does not appear to contain valid JSON (does not start with { or [)');
+        }
+        
+        dbData = JSON.parse(fileContent);
+        console.log('Successfully parsed database.json');
+        
+      } catch (jsonError) {
+        console.error('Enhanced JSON parsing error details:', {
+          message: jsonError.message,
+          fileName: './database.json',
+          fileExists: fs.existsSync('./database.json'),
+          fileSize: fs.existsSync('./database.json') ? fs.statSync('./database.json').size : 0
+        });
+        
+        if (jsonError.message.includes('Unexpected non-whitespace character after JSON')) {
+          console.error('This error typically indicates the JSON file contains multiple JSON objects or has trailing content after the main JSON structure.');
+          this.emitProgress('vectordb_error', `JSON parsing failed: The database.json file contains invalid JSON structure. ${jsonError.message}. Check the file for multiple JSON objects or trailing content.`);
+        } else {
+          this.emitProgress('vectordb_error', `Failed to read or parse database.json: ${jsonError.message}`);
+        }
+        throw jsonError;
+      }
       
       const records = [];
       let idCounter = 0;
