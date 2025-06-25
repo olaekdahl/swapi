@@ -32,11 +32,15 @@ class VectorDBSetup {
       this.db = await connect(this.dbPath);
       
       this.emitProgress('vectordb_init', 'Checking existing tables...');
-      // Check if table exists, if so drop it to recreate with fresh data
+      // Check if table exists - but don't drop it here, let ingestData handle it
+      // This prevents issues where initialize is called multiple times
       const tableNames = await this.db.tableNames();
       if (tableNames.includes(this.tableName)) {
-        this.emitProgress('vectordb_init', 'Dropping existing table for fresh data...');
-        await this.db.dropTable(this.tableName);
+        console.log(`Table '${this.tableName}' already exists - will be handled during data ingestion`);
+        this.emitProgress('vectordb_init', 'Found existing table - will refresh during data ingestion');
+      } else {
+        console.log(`No existing table '${this.tableName}' found - will create during data ingestion`);
+        this.emitProgress('vectordb_init', 'No existing table found - will create during data ingestion');
       }
       
       this.emitProgress('vectordb_init', 'Vector database initialized successfully');
@@ -87,39 +91,68 @@ class VectorDBSetup {
     try {
       this.emitProgress('vectordb_ingest', 'Reading database.json file...');
       
-      // Enhanced JSON file reading with better error handling
+      // Enhanced JSON file reading with retry mechanism and better error handling
       let dbData;
-      try {
-        const fileContent = fs.readFileSync('./database.json', 'utf8');
-        console.log(`Database file size: ${fileContent.length} characters`);
-        
-        // Check for common JSON file issues
-        if (fileContent.trim().length === 0) {
-          throw new Error('Database file is empty');
+      const maxRetries = 3;
+      let lastError;
+      
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          this.emitProgress('vectordb_ingest', `Reading database.json file (attempt ${attempt}/${maxRetries})...`);
+          
+          // Wait a bit between retries to handle potential race conditions
+          if (attempt > 1) {
+            await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+          }
+          
+          const fileContent = fs.readFileSync('./database.json', 'utf8');
+          console.log(`Database file size: ${fileContent.length} characters`);
+          
+          // Check for common JSON file issues
+          if (fileContent.trim().length === 0) {
+            throw new Error('Database file is empty');
+          }
+          
+          const trimmedContent = fileContent.trim();
+          if (!trimmedContent.startsWith('{') && !trimmedContent.startsWith('[')) {
+            throw new Error('Database file does not appear to contain valid JSON (does not start with { or [)');
+          }
+          
+          // Validate JSON structure by attempting to parse
+          dbData = JSON.parse(trimmedContent);
+          
+          // Additional validation - ensure we have expected structure
+          if (typeof dbData !== 'object' || dbData === null) {
+            throw new Error('Database file does not contain a valid JSON object');
+          }
+          
+          console.log('Successfully parsed database.json');
+          break; // Success, exit retry loop
+          
+        } catch (jsonError) {
+          lastError = jsonError;
+          console.error(`JSON parsing attempt ${attempt} failed:`, {
+            message: jsonError.message,
+            fileName: './database.json',
+            fileExists: fs.existsSync('./database.json'),
+            fileSize: fs.existsSync('./database.json') ? fs.statSync('./database.json').size : 0,
+            attempt: attempt
+          });
+          
+          // If this is the last attempt, handle the error
+          if (attempt === maxRetries) {
+            if (jsonError.message.includes('Unexpected non-whitespace character after JSON')) {
+              console.error('This error typically indicates the JSON file contains multiple JSON objects, has trailing content, or is being accessed concurrently.');
+              this.emitProgress('vectordb_error', `JSON parsing failed after ${maxRetries} attempts: The database.json file contains invalid JSON structure. ${jsonError.message}. This may be due to concurrent file access or corrupted JSON.`);
+            } else {
+              this.emitProgress('vectordb_error', `Failed to read or parse database.json after ${maxRetries} attempts: ${jsonError.message}`);
+            }
+            throw jsonError;
+          }
+          
+          // Log retry attempt
+          this.emitProgress('vectordb_warning', `JSON parsing attempt ${attempt} failed, retrying: ${jsonError.message}`);
         }
-        
-        if (!fileContent.trim().startsWith('{') && !fileContent.trim().startsWith('[')) {
-          throw new Error('Database file does not appear to contain valid JSON (does not start with { or [)');
-        }
-        
-        dbData = JSON.parse(fileContent);
-        console.log('Successfully parsed database.json');
-        
-      } catch (jsonError) {
-        console.error('Enhanced JSON parsing error details:', {
-          message: jsonError.message,
-          fileName: './database.json',
-          fileExists: fs.existsSync('./database.json'),
-          fileSize: fs.existsSync('./database.json') ? fs.statSync('./database.json').size : 0
-        });
-        
-        if (jsonError.message.includes('Unexpected non-whitespace character after JSON')) {
-          console.error('This error typically indicates the JSON file contains multiple JSON objects or has trailing content after the main JSON structure.');
-          this.emitProgress('vectordb_error', `JSON parsing failed: The database.json file contains invalid JSON structure. ${jsonError.message}. Check the file for multiple JSON objects or trailing content.`);
-        } else {
-          this.emitProgress('vectordb_error', `Failed to read or parse database.json: ${jsonError.message}`);
-        }
-        throw jsonError;
       }
       
       const records = [];
@@ -191,8 +224,37 @@ class VectorDBSetup {
         totalRecords: records.length
       });
 
-      // Create table and add all records
-      this.table = await this.db.createTable(this.tableName, records);
+      // Handle table creation with better error handling for existing tables
+      try {
+        // Check if table already exists
+        const tableNames = await this.db.tableNames();
+        if (tableNames.includes(this.tableName)) {
+          // Table exists, drop it first to ensure clean state
+          console.log(`Table '${this.tableName}' already exists, dropping it for fresh data...`);
+          this.emitProgress('vectordb_ingest', 'Dropping existing table for fresh data...');
+          await this.db.dropTable(this.tableName);
+        }
+        
+        // Create table with all records
+        this.table = await this.db.createTable(this.tableName, records);
+        
+      } catch (tableError) {
+        // If table creation fails due to existing table, try to handle it gracefully
+        if (tableError.message && tableError.message.includes('already exists')) {
+          console.log(`Table creation failed due to existing table, attempting to drop and recreate...`);
+          this.emitProgress('vectordb_warning', 'Table already exists, attempting to drop and recreate...');
+          
+          try {
+            await this.db.dropTable(this.tableName);
+            this.table = await this.db.createTable(this.tableName, records);
+          } catch (secondAttemptError) {
+            throw new Error(`Failed to create table after handling existing table: ${secondAttemptError.message}`);
+          }
+        } else {
+          // Re-throw if it's not a "table exists" error
+          throw tableError;
+        }
+      }
 
       const successMsg = `Successfully ingested ${records.length} documents into vector database`;
       this.emitProgress('vectordb_complete', successMsg, {
