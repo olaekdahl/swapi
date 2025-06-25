@@ -8,6 +8,10 @@ import { Strategy as LocalStrategy } from 'passport-local';
 import session from 'express-session';
 import OpenAI from 'openai';
 import VectorDBSetup from './vector-db-setup.js';
+import { ChatOpenAI } from '@langchain/openai';
+import { AgentExecutor, createToolCallingAgent } from 'langchain/agents';
+import { ChatPromptTemplate } from '@langchain/core/prompts';
+import { swapiTools, extractEntityIds } from './langchain-tools.js';
 
 // Create an express web server
 const app = express();
@@ -573,11 +577,11 @@ app.post('/api/query', async (req, res) => {
     try {
       collection = await vectorDB.getCollection();
     } catch (error) {
-      // Check if this is a ChromaDB server connection issue
+      // Check if this is a LanceDB connection issue
       if (error.message.includes('connect') || error.message.includes('server')) {
         return res.status(503).json({ 
-          error: 'ChromaDB server is not running',
-          suggestion: 'Start ChromaDB server with: pip install chromadb && chroma run --host 0.0.0.0 --port 8000',
+          error: 'Vector database connection failed',
+          suggestion: 'Make sure the vector database is properly initialized',
           details: error.message
         });
       }
@@ -590,7 +594,7 @@ app.post('/api/query', async (req, res) => {
       if (!initialized) {
         return res.status(500).json({ 
           error: 'Failed to initialize vector database',
-          suggestion: 'Make sure ChromaDB server is running on port 8000'
+          suggestion: 'Check OpenAI API key and network connectivity'
         });
       }
       
@@ -602,7 +606,7 @@ app.post('/api/query', async (req, res) => {
       console.log('Vector database setup complete');
     }
 
-    // Search for similar content (use higher limit for attribute queries)
+    // First, get initial context from vector search
     const isAttributeQuery = /\b(red|blue|green|yellow|brown|black|white|orange|purple|pink)\s+(eyes?|hair|skin)\b/i.test(query.trim()) ||
                             /\beyes?\s+(are|is)?\s*(red|blue|green|yellow|brown|black|white|orange|purple|pink)\b/i.test(query.trim());
     const searchLimit = isAttributeQuery ? 10 : 5;
@@ -618,38 +622,78 @@ app.post('/api/query', async (req, res) => {
       };
     });
 
-    // Prepare context for OpenAI
+    // Extract entity IDs from context for potential API calls
+    const entityIds = extractEntityIds(context);
+    
+    // Initialize LangChain ChatOpenAI model
+    const llm = new ChatOpenAI({
+      apiKey: apiKey.trim(),
+      model: model.trim(),
+      temperature: 0.7,
+    });
+
+    // Create a prompt template for the agent
+    const prompt = ChatPromptTemplate.fromMessages([
+      ['system', `You are an expert on Star Wars data with access to detailed information through API tools. 
+
+Initial Context from Vector Search:
+{context}
+
+You have access to tools that can get detailed information about characters, films, planets, starships, species, and vehicles. Use these tools when you need more specific details beyond what's provided in the initial context.
+
+Guidelines:
+1. Start by analyzing the initial context provided
+2. If you need more details about specific entities (like character films, planet details, etc.), use the appropriate tools
+3. For attribute-based queries (like "characters with red eyes"), use the search_characters tool
+4. Always provide comprehensive answers citing both the initial context and any additional details from tool calls
+5. Be specific about sources and include relevant details like character names, film titles, etc.
+
+Available tools can help you get:
+- Detailed character information and their films
+- Film details and cast information  
+- Planet information and inhabitants
+- Starship and vehicle details
+- Species information and characters
+- Search functionality for attribute-based queries
+
+Use the tools strategically to provide the most complete and accurate answer possible.`],
+      ['human', '{input}'],
+      ['placeholder', '{agent_scratchpad}']
+    ]);
+
+    // Create the agent with tools
+    const agent = await createToolCallingAgent({
+      llm,
+      tools: swapiTools,
+      prompt,
+    });
+
+    // Create agent executor
+    const agentExecutor = new AgentExecutor({
+      agent,
+      tools: swapiTools,
+      verbose: true,
+      maxIterations: 10,
+    });
+
+    // Prepare context text for the agent
     const contextText = context
       .map(item => `${item.content} (Relevance: ${item.relevance.toFixed(2)})`)
       .join('\n\n');
 
-    // Generate response using OpenAI
-    const openai = new OpenAI({ apiKey: apiKey.trim() });
-    const completion = await openai.chat.completions.create({
-      model: model.trim(),
-      messages: [
-        {
-          role: 'system',
-          content: `You are an expert on Star Wars data. Use the following context to answer the user's question. If the context doesn't contain enough information to answer the question fully, say so. Always cite the relevant information from the context.
-
-Context:
-${contextText}`
-        },
-        {
-          role: 'user',
-          content: query.trim()
-        }
-      ],
-      max_tokens: 1000,
-      temperature: 0.7
+    // Execute the agent with the query and context
+    const result = await agentExecutor.invoke({
+      input: query.trim(),
+      context: contextText
     });
 
     const response = {
       query: query.trim(),
-      answer: completion.choices[0].message.content,
+      answer: result.output,
       context: context,
       model: model.trim(),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      enhanced: true // Flag to indicate this used LangChain tools
     };
 
     res.json(response);

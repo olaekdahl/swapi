@@ -1,13 +1,15 @@
 # Star Wars Natural Language Query System
 
-This SWAPI (Star Wars API) implementation now includes natural language query support using RAG (Retrieval-Augmented Generation) with vector database and OpenAI.
+This SWAPI (Star Wars API) implementation now includes natural language query support using RAG (Retrieval-Augmented Generation) with vector database, OpenAI, and **LangChain tools** for enhanced accuracy.
 
 ## Features
 
 - **Natural Language Queries**: Ask questions about Star Wars in plain English
 - **Embedded Vector Database**: Uses LanceDB embedded in the Node.js server
 - **OpenAI Integration**: Leverages GPT models for intelligent responses
+- **LangChain Agent System**: Uses tools to make API calls for additional details
 - **Real-time Context**: Provides relevant context sources for each answer
+- **Enhanced Accuracy**: Combines vector search with direct API access
 
 ## How to Use
 
@@ -49,9 +51,10 @@ This SWAPI (Star Wars API) implementation now includes natural language query su
 - "Who is Luke Skywalker?"
 - "Tell me about Darth Vader"
 - "What characters are from Naboo?"
+- "What movies is Luke Skywalker in?" **(Enhanced with API tool calls)**
 
 #### Attribute-Based Queries (Enhanced Search)
-- "What characters have red eyes?"
+- "What characters have red eyes?" **(Enhanced with search tool)**
 - "Which characters have blue hair?"
 - "Characters with yellow skin"
 - "Who has brown eyes?"
@@ -59,10 +62,16 @@ This SWAPI (Star Wars API) implementation now includes natural language query su
 #### Film and Story Queries
 - "What is the Death Star?"
 - "Tell me about the planet Tatooine"
-- "What movies feature Darth Vader?"
-- "What starships appear in A New Hope?"
+- "What movies feature Darth Vader?" **(Enhanced with API tool calls)**
+- "What starships appear in A New Hope?" **(Enhanced with API tool calls)**
 
-**Note**: The system uses advanced hybrid search for attribute-based queries (like eye color, hair color, etc.) combining vector similarity with exact keyword matching for improved accuracy and recall.
+#### Detailed Relationship Queries **(New with LangChain)**
+- "Who pilots the Millennium Falcon?" 
+- "What characters are from Tatooine?"
+- "Which films feature the Death Star?"
+- "What species appear in the original trilogy?"
+
+**Note**: The system now uses **LangChain agents with API tools** to provide much more comprehensive and accurate answers by combining vector search with direct API calls to get complete, up-to-date information.
 
 ## API Endpoints
 
@@ -132,6 +141,30 @@ Process a natural language query using RAG.
 
 ## Technical Implementation
 
+### Enhanced RAG with LangChain Tools
+
+The system now uses **LangChain agents** with specialized tools for enhanced accuracy:
+
+1. **Vector Search**: Initial context retrieval using semantic similarity
+2. **LangChain Agent**: Intelligent tool selection and API calls
+3. **API Tools**: Direct access to detailed Star Wars data via 12+ specialized tools
+4. **Comprehensive Response**: Combines initial context with fresh API data
+
+### Available LangChain Tools
+
+- `get_character` - Get detailed character information
+- `get_character_films` - Get films featuring a specific character
+- `get_film` - Get detailed film information
+- `get_film_characters` - Get characters in a specific film
+- `get_planet` - Get detailed planet information
+- `get_planet_characters` - Get characters from a specific planet
+- `get_starship` - Get detailed starship information
+- `get_starship_characters` - Get characters who pilot a starship
+- `get_species` - Get detailed species information
+- `get_species_characters` - Get characters of a specific species
+- `get_vehicle` - Get detailed vehicle information
+- `search_characters` - Advanced character attribute search
+
 ### Vector Database
 - Uses **LanceDB** embedded in the Node.js server for storing and searching vector embeddings
 - Data is automatically ingested from `database.json` on first query
@@ -139,12 +172,13 @@ Process a natural language query using RAG.
 - Stores metadata for entity type, names, and other searchable fields
 - No external database server required - fully embedded solution
 
-### RAG Process
+### Enhanced RAG Process
 1. User query is converted to vector embedding
-2. Similarity search finds relevant Star Wars data
-3. Top 5 most relevant results are used as context
-4. OpenAI generates response based on context and query
-5. Response includes both answer and source context
+2. Similarity search finds initially relevant Star Wars data
+3. **LangChain agent analyzes context and decides which tools to use**
+4. **Agent makes targeted API calls to get additional details**
+5. **OpenAI generates comprehensive response using both vector context and API results**
+6. Response includes both answer and detailed source context
 
 ### Security
 - API keys are not stored on the server

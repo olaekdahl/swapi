@@ -13,13 +13,18 @@
   "license": "ISC",
   "dependencies": {
     "@lancedb/lancedb": "^0.15.0",
+    "@langchain/core": "^0.3.0",
+    "@langchain/openai": "^0.3.0",
+    "axios": "^1.7.0",
     "cors": "^2.8.5",
     "express-session": "^1.18.1",
     "json-server": "^0.17.3",
+    "langchain": "^0.3.0",
     "openai": "^5.7.0",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^4.6.3"
+    "swagger-ui-express": "^4.6.3",
+    "zod": "^3.22.0"
   }
 }
