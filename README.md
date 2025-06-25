@@ -38,7 +38,6 @@ An "unofficial" fork of "swapi" from https://github.com/Juriy/swapi re-written u
 ### Core API Features
 - **RESTful API** - Access to all Star Wars data
 - **Swagger Documentation** - Interactive API documentation at `/api-docs`
-- **Authentication** - Admin login system
 - **CORS Support** - Cross-origin requests enabled
 
 ### Natural Language Query Features
