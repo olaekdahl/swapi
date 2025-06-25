@@ -4,33 +4,48 @@ import path from 'path';
 import OpenAI from 'openai';
 
 class VectorDBSetup {
-  constructor() {
+  constructor(progressCallback = null) {
     // Set up LanceDB path
     this.dbPath = path.join(process.cwd(), 'lancedb');
     this.tableName = 'swapi_data';
     this.db = null;
     this.table = null;
+    this.progressCallback = progressCallback;
     console.log(`LanceDB configured at: ${this.dbPath}`);
+  }
+
+  emitProgress(type, message, data = {}) {
+    if (this.progressCallback) {
+      this.progressCallback(type, message, data);
+    }
   }
 
   async initialize(openaiApiKey) {
     try {
+      this.emitProgress('vectordb_init', 'Initializing vector database...');
+      
       // Initialize OpenAI client
       this.openai = new OpenAI({ apiKey: openaiApiKey });
       
+      this.emitProgress('vectordb_init', 'Connecting to LanceDB...');
       // Connect to LanceDB (creates directory if it doesn't exist)
       this.db = await connect(this.dbPath);
       
+      this.emitProgress('vectordb_init', 'Checking existing tables...');
       // Check if table exists, if so drop it to recreate with fresh data
       const tableNames = await this.db.tableNames();
       if (tableNames.includes(this.tableName)) {
+        this.emitProgress('vectordb_init', 'Dropping existing table for fresh data...');
         await this.db.dropTable(this.tableName);
       }
       
+      this.emitProgress('vectordb_init', 'Vector database initialized successfully');
       console.log('Vector database initialized successfully');
       return true;
     } catch (error) {
-      console.error('Failed to initialize vector database:', error.message);
+      const errorMsg = 'Failed to initialize vector database: ' + error.message;
+      this.emitProgress('vectordb_error', errorMsg);
+      console.error(errorMsg);
       return false;
     }
   }
@@ -51,18 +66,33 @@ class VectorDBSetup {
 
   async ingestData() {
     try {
+      this.emitProgress('vectordb_ingest', 'Reading database.json file...');
       // Read the database.json file
       const dbData = JSON.parse(fs.readFileSync('./database.json', 'utf8'));
       
       const records = [];
       let idCounter = 0;
+      const entityTypes = Object.keys(dbData).filter(key => Array.isArray(dbData[key]));
+      const totalEntities = entityTypes.reduce((sum, type) => sum + dbData[type].length, 0);
+      let processedEntities = 0;
+
+      this.emitProgress('vectordb_ingest', `Found ${totalEntities} entities across ${entityTypes.length} types`, {
+        totalEntities,
+        entityTypes: entityTypes.length
+      });
 
       // Process each entity type
       for (const [entityType, entities] of Object.entries(dbData)) {
-        console.log(`Processing ${entityType}...`);
-        
         if (Array.isArray(entities)) {
-          for (const entity of entities) {
+          this.emitProgress('vectordb_ingest', `Processing ${entities.length} ${entityType}...`, {
+            entityType,
+            count: entities.length,
+            progress: Math.round((processedEntities / totalEntities) * 100)
+          });
+          console.log(`Processing ${entityType}...`);
+          
+          for (let i = 0; i < entities.length; i++) {
+            const entity = entities[i];
             try {
               // Create a comprehensive text representation of the entity with relationships
               const textContent = this.createTextContent(entityType, entity, dbData);
@@ -81,23 +111,47 @@ class VectorDBSetup {
               };
               
               records.push(record);
+              processedEntities++;
+              
+              // Emit progress every 5 entities
+              if (processedEntities % 5 === 0 || i === entities.length - 1) {
+                this.emitProgress('vectordb_ingest', `Processing ${entityType}: ${i + 1}/${entities.length}`, {
+                  entityType,
+                  entityProgress: i + 1,
+                  entityTotal: entities.length,
+                  overallProgress: Math.round((processedEntities / totalEntities) * 100),
+                  processedEntities,
+                  totalEntities
+                });
+              }
               
               // Small delay to avoid rate limiting
               await new Promise(resolve => setTimeout(resolve, 100));
             } catch (error) {
               console.error(`Failed to process ${entityType} entity:`, error.message);
+              this.emitProgress('vectordb_warning', `Failed to process ${entityType} entity: ${error.message}`);
             }
           }
         }
       }
 
+      this.emitProgress('vectordb_ingest', 'Creating LanceDB table with all records...', {
+        totalRecords: records.length
+      });
+
       // Create table and add all records
       this.table = await this.db.createTable(this.tableName, records);
 
-      console.log(`Successfully ingested ${records.length} documents into vector database`);
+      const successMsg = `Successfully ingested ${records.length} documents into vector database`;
+      this.emitProgress('vectordb_complete', successMsg, {
+        totalRecords: records.length
+      });
+      console.log(successMsg);
       return true;
     } catch (error) {
-      console.error('Failed to ingest data:', error.message);
+      const errorMsg = 'Failed to ingest data: ' + error.message;
+      this.emitProgress('vectordb_error', errorMsg);
+      console.error(errorMsg);
       return false;
     }
   }

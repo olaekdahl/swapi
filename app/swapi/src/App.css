@@ -263,3 +263,247 @@ label {
   color: #555;
   margin: 0;
 }
+
+/* Progress Section Styles */
+.progress-section {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  border: 1px solid #dee2e6;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.progress-header h3 {
+  margin: 0;
+  color: #495057;
+  font-size: 18px;
+}
+
+.clear-progress-btn {
+  padding: 5px 12px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.clear-progress-btn:hover:not(:disabled) {
+  background-color: #5a6268;
+}
+
+.clear-progress-btn:disabled {
+  background-color: #adb5bd;
+  cursor: not-allowed;
+}
+
+.progress-updates {
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.progress-item {
+  background-color: white;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 5px;
+  border-left: 4px solid #6c757d;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.progress-header-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.progress-type {
+  font-size: 11px;
+  font-weight: bold;
+  color: #495057;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progress-time {
+  font-size: 11px;
+  color: #6c757d;
+}
+
+.progress-message {
+  font-size: 14px;
+  color: #212529;
+  margin-bottom: 8px;
+}
+
+.progress-bar {
+  position: relative;
+  background-color: #e9ecef;
+  border-radius: 10px;
+  height: 20px;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #28a745;
+  border-radius: 10px;
+  transition: width 0.3s ease;
+  position: relative;
+}
+
+.progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 11px;
+  font-weight: bold;
+  color: #212529;
+  z-index: 1;
+}
+
+.progress-details {
+  font-size: 12px;
+  color: #6c757d;
+  font-style: italic;
+  margin-top: 5px;
+}
+
+/* Processing Steps Styles */
+.processing-steps {
+  margin-top: 15px;
+}
+
+.processing-steps summary {
+  cursor: pointer;
+  font-weight: bold;
+  color: #9b59b6;
+  padding: 10px;
+  background-color: white;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.processing-steps summary:hover {
+  background-color: #f1f2f6;
+}
+
+.steps-list {
+  background-color: white;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.step-item:last-child {
+  border-bottom: none;
+}
+
+.step-number {
+  background-color: #9b59b6;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.step-description {
+  font-size: 14px;
+  color: #495057;
+}
+
+/* Raw Data Styles */
+.raw-data-details {
+  margin-top: 15px;
+}
+
+.raw-data-details summary {
+  cursor: pointer;
+  font-weight: bold;
+  color: #e67e22;
+  padding: 10px;
+  background-color: white;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.raw-data-details summary:hover {
+  background-color: #f1f2f6;
+}
+
+.raw-data-content {
+  background-color: white;
+  padding: 15px;
+  border-radius: 5px;
+}
+
+.raw-section {
+  margin-bottom: 20px;
+}
+
+.raw-section:last-child {
+  margin-bottom: 0;
+}
+
+.raw-section h4 {
+  margin: 0 0 10px 0;
+  color: #495057;
+  font-size: 14px;
+}
+
+.raw-json {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 3px;
+  padding: 12px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  color: #495057;
+}
+
+/* Scrollbar styling for progress updates */
+.progress-updates::-webkit-scrollbar {
+  width: 6px;
+}
+
+.progress-updates::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.progress-updates::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.progress-updates::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}

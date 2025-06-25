@@ -403,7 +403,65 @@ app.get('/api/planets/:id/characters', (req, res) => {
 });
 
 // Initialize vector database instance
-const vectorDB = new VectorDBSetup();
+const vectorDB = new VectorDBSetup((type, message, data) => {
+  // Broadcast progress to all connected SSE clients
+  for (const [sessionId, connection] of sseConnections) {
+    try {
+      const payload = {
+        type,
+        message,
+        timestamp: new Date().toISOString(),
+        ...data
+      };
+      connection.write(`data: ${JSON.stringify(payload)}\n\n`);
+    } catch (error) {
+      // Connection might be closed, remove it
+      sseConnections.delete(sessionId);
+    }
+  }
+});
+
+// Store for SSE connections
+const sseConnections = new Map();
+
+// SSE endpoint for real-time progress updates
+app.get('/api/progress/:sessionId', (req, res) => {
+  const sessionId = req.params.sessionId;
+  
+  // Set headers for SSE
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Cache-Control'
+  });
+
+  // Store connection
+  sseConnections.set(sessionId, res);
+
+  // Send initial connection confirmation
+  res.write(`data: ${JSON.stringify({ type: 'connected', sessionId })}\n\n`);
+
+  // Handle client disconnect
+  req.on('close', () => {
+    sseConnections.delete(sessionId);
+  });
+});
+
+// Helper function to send progress updates
+function sendProgress(sessionId, type, message, data = {}) {
+  const connection = sseConnections.get(sessionId);
+  if (connection) {
+    const payload = {
+      type,
+      message,
+      timestamp: new Date().toISOString(),
+      ...data
+    };
+    connection.write(`data: ${JSON.stringify(payload)}\n\n`);
+  }
+}
 
 // API endpoint to check system status
 /**
@@ -547,7 +605,7 @@ app.post('/api/models', async (req, res) => {
  */
 app.post('/api/query', async (req, res) => {
   try {
-    const { apiKey, model, query } = req.body;
+    const { apiKey, model, query, sessionId } = req.body;
     
     // Validate inputs
     if (!apiKey || typeof apiKey !== 'string' || apiKey.trim().length === 0) {
@@ -572,9 +630,17 @@ app.post('/api/query', async (req, res) => {
       return res.status(400).json({ error: 'Query too long. Maximum 1000 characters allowed.' });
     }
 
+    // Send initial progress
+    if (sessionId) {
+      sendProgress(sessionId, 'query_start', 'Starting query processing...', { query });
+    }
+
     // Check if vector database is initialized, if not, initialize it
     let collection;
     try {
+      if (sessionId) {
+        sendProgress(sessionId, 'query_step', 'Checking vector database status...');
+      }
       collection = await vectorDB.getCollection();
     } catch (error) {
       // Check if this is a LanceDB connection issue
@@ -589,6 +655,9 @@ app.post('/api/query', async (req, res) => {
     }
     
     if (!collection) {
+      if (sessionId) {
+        sendProgress(sessionId, 'query_step', 'Vector database not initialized. Initializing now...');
+      }
       console.log('Initializing vector database...');
       const initialized = await vectorDB.initialize(apiKey.trim());
       if (!initialized) {
@@ -598,12 +667,20 @@ app.post('/api/query', async (req, res) => {
         });
       }
       
+      if (sessionId) {
+        sendProgress(sessionId, 'query_step', 'Ingesting data into vector database...');
+      }
       console.log('Ingesting data into vector database...');
       const ingested = await vectorDB.ingestData();
       if (!ingested) {
         return res.status(500).json({ error: 'Failed to ingest data into vector database' });
       }
       console.log('Vector database setup complete');
+    }
+
+    // Vector search phase
+    if (sessionId) {
+      sendProgress(sessionId, 'query_step', 'Performing vector similarity search...', { query });
     }
 
     // First, get initial context from vector search
@@ -622,9 +699,20 @@ app.post('/api/query', async (req, res) => {
       };
     });
 
+    if (sessionId) {
+      sendProgress(sessionId, 'query_step', `Found ${context.length} relevant documents from vector search`, {
+        contextCount: context.length,
+        isAttributeQuery
+      });
+    }
+
     // Extract entity IDs from context for potential API calls
     const entityIds = extractEntityIds(context);
     
+    if (sessionId) {
+      sendProgress(sessionId, 'query_step', 'Initializing LangChain agent with API tools...');
+    }
+
     // Initialize LangChain ChatOpenAI model
     const llm = new ChatOpenAI({
       apiKey: apiKey.trim(),
@@ -676,6 +764,10 @@ Use the tools strategically to provide the most complete and accurate answer pos
       maxIterations: 10,
     });
 
+    if (sessionId) {
+      sendProgress(sessionId, 'query_step', 'Executing LangChain agent with context and tools...');
+    }
+
     // Prepare context text for the agent
     const contextText = context
       .map(item => `${item.content} (Relevance: ${item.relevance.toFixed(2)})`)
@@ -687,13 +779,23 @@ Use the tools strategically to provide the most complete and accurate answer pos
       context: contextText
     });
 
+    if (sessionId) {
+      sendProgress(sessionId, 'query_complete', 'Query processing completed successfully');
+    }
+
     const response = {
       query: query.trim(),
       answer: result.output,
       context: context,
       model: model.trim(),
       timestamp: new Date().toISOString(),
-      enhanced: true // Flag to indicate this used LangChain tools
+      enhanced: true, // Flag to indicate this used LangChain tools
+      processingSteps: [
+        'Vector similarity search',
+        'Context extraction',
+        'LangChain agent execution',
+        'API tool integration'
+      ]
     };
 
     res.json(response);
