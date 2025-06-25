@@ -1,0 +1,68 @@
+name: Build Vector Database
+
+on:
+  push:
+    paths:
+      - 'server/**'
+      - '.github/workflows/build-vector-db.yml'
+  workflow_call:
+    outputs:
+      database-built:
+        description: "Whether the database was successfully built"
+        value: ${{ jobs.build-vector-db.outputs.database-built }}
+
+jobs:
+  build-vector-db:
+    runs-on: ubuntu-latest
+    outputs:
+      database-built: ${{ steps.build-db.outputs.database-built }}
+    
+    steps:
+      - name: 'Checkout repository'
+        uses: actions/checkout@v4
+      
+      - name: 'Setup Node.js'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+      
+      - name: 'Install server dependencies'
+        run: |
+          cd server
+          npm ci
+      
+      - name: 'Build vector database'
+        id: build-db
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          cd server
+          echo "Building vector database with OpenAI embeddings..."
+          node build-vector-db.js
+          
+          # Check if database was created successfully
+          if [ -d "lancedb" ] && [ "$(ls -A lancedb)" ]; then
+            echo "Vector database built successfully"
+            echo "database-built=true" >> $GITHUB_OUTPUT
+            
+            # Display database info
+            echo "Database contents:"
+            ls -la lancedb/
+            
+            # Get database size
+            DB_SIZE=$(du -sh lancedb | cut -f1)
+            echo "Database size: $DB_SIZE"
+          else
+            echo "Failed to build vector database"
+            echo "database-built=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+      
+      - name: 'Upload vector database artifact'
+        uses: actions/upload-artifact@v4
+        with:
+          name: vector-database
+          path: server/lancedb/
+          retention-days: 1
