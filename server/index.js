@@ -441,7 +441,7 @@ app.get('/api/progress/:sessionId', (req, res) => {
   sseConnections.set(sessionId, res);
 
   // Send initial connection confirmation
-  res.write(`data: ${JSON.stringify({ type: 'connected', sessionId })}\n\n`);
+  res.write(`data: ${JSON.stringify({ type: 'connected', sessionId, timestamp: new Date().toISOString() })}\n\n`);
 
   // Handle client disconnect
   req.on('close', () => {
