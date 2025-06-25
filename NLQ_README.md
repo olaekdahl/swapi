@@ -5,7 +5,7 @@ This SWAPI (Star Wars API) implementation now includes natural language query su
 ## Features
 
 - **Natural Language Queries**: Ask questions about Star Wars in plain English
-- **Vector Database Search**: Uses ChromaDB for semantic similarity search
+- **Embedded Vector Database**: Uses LanceDB embedded in the Node.js server
 - **OpenAI Integration**: Leverages GPT models for intelligent responses
 - **Real-time Context**: Provides relevant context sources for each answer
 
@@ -15,51 +15,20 @@ This SWAPI (Star Wars API) implementation now includes natural language query su
 
 1. **OpenAI API Key**: You need a valid OpenAI API key that starts with `sk-`
 2. **Internet Connection**: Required for OpenAI API calls and embedding generation
-3. **ChromaDB Server**: Required for vector database functionality
 
 ### Getting Started
 
-1. **Start ChromaDB Server**:
-   ChromaDB requires a server to be running. Choose one of these options:
-   
-   **Option A: Using Python (Recommended)**
-   ```bash
-   # Install ChromaDB
-   pip install chromadb
-   
-   # Start the server
-   chroma run --host 0.0.0.0 --port 8000
-   ```
-   
-   **Option B: Using Docker**
-   ```bash
-   # Run ChromaDB in Docker
-   docker run -p 8000:8000 chromadb/chroma:latest
-   ```
-   
-   The ChromaDB server should start on http://localhost:8000
-
-2. **Start the Backend Server**:
-   ```bash
-   cd server
-   npm install
-   npm start
-   ```
-2. **Start the Backend Server**:
+1. **Start the Backend Server**:
    ```bash
    cd server
    npm install
    npm start
    ```
    Server will run on http://localhost:3000
+   
+   The LanceDB vector database will be automatically created and embedded in the server - no separate database server setup required!
 
-3. **Start the Frontend**:
-   ```bash
-   cd app/swapi
-   npm install
-   npm start
-   ```
-3. **Start the Frontend**:
+2. **Start the Frontend**:
    ```bash
    cd app/swapi
    npm install
@@ -67,7 +36,7 @@ This SWAPI (Star Wars API) implementation now includes natural language query su
    ```
    Frontend will run on http://localhost:3001 (or another available port)
 
-4. **Use the Interface**:
+3. **Use the Interface**:
    - Enter your OpenAI API key
    - Click "Load Models" to fetch available GPT models
    - Select a model from the dropdown
@@ -152,10 +121,11 @@ Process a natural language query using RAG.
 ## Technical Implementation
 
 ### Vector Database
-- Uses **ChromaDB** for storing and searching vector embeddings
+- Uses **LanceDB** embedded in the Node.js server for storing and searching vector embeddings
 - Data is automatically ingested from `database.json` on first query
 - Uses OpenAI's `text-embedding-3-small` model for embeddings
 - Stores metadata for entity type, names, and other searchable fields
+- No external database server required - fully embedded solution
 
 ### RAG Process
 1. User query is converted to vector embedding
@@ -193,50 +163,16 @@ The system includes comprehensive error handling for:
 
 ## Troubleshooting
 
-### ChromaDB Connection Issues
-
-If you see errors like "Failed to connect to chromadb" or "ChromaDB server is not running":
-
-1. **Make sure ChromaDB server is running**:
-   ```bash
-   # Check if ChromaDB is running
-   curl http://localhost:8000/api/v1/heartbeat
-   
-   # If not running, start it:
-   pip install chromadb
-   chroma run --host 0.0.0.0 --port 8000
-   ```
-
-2. **Using Docker** (alternative):
-   ```bash
-   docker run -p 8000:8000 chromadb/chroma:latest
-   ```
-
-3. **Check the server status**:
-   Visit http://localhost:3000/api/status to see the current system status
-
 ### Common Issues
 
-- **Port 8000 in use**: If port 8000 is occupied, ChromaDB can be started on a different port:
-  ```bash
-  chroma run --host 0.0.0.0 --port 8001
-  ```
-  Then set the environment variable:
-  ```bash
-  export CHROMA_PORT=8001
-  npm start
-  ```
-
-- **Different host**: To use a different ChromaDB host:
-  ```bash
-  export CHROMA_HOST=http://your-chroma-server
-  export CHROMA_PORT=8000
-  npm start
-  ```
-
-- **Python/pip not available**: ChromaDB requires Python. Install Python 3.8+ and pip first
+- **Vector database initialization errors**: The system will automatically create the LanceDB database on first use. Check the console logs for any OpenAI API key or network issues.
 
 - **OpenAI API issues**: Make sure your API key is valid and has sufficient credits
+
+- **Port conflicts**: If port 3000 is in use, the server will fail to start. Use a different port:
+  ```bash
+  PORT=3001 npm start
+  ```
 
 ## Development
 
@@ -244,7 +180,7 @@ To extend or modify the system:
 
 1. **Backend**: Edit files in `/server` directory
    - `index.js`: Main Express server with API endpoints
-   - `vector-db-setup.js`: Vector database operations
+   - `vector-db-setup.js`: Vector database operations using LanceDB
    
 2. **Frontend**: Edit files in `/app/swapi/src` directory
    - `App.js`: Main React component

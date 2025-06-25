@@ -12,8 +12,7 @@
   "author": "@RapPayne & @olaekdahl",
   "license": "ISC",
   "dependencies": {
-    "@chroma-core/default-embed": "^0.1.8",
-    "chromadb": "^3.0.4",
+    "@lancedb/lancedb": "^0.15.0",
     "cors": "^2.8.5",
     "express-session": "^1.18.1",
     "json-server": "^0.17.3",

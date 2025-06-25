@@ -1,19 +1,16 @@
-import { ChromaClient } from 'chromadb';
+import { connect } from '@lancedb/lancedb';
 import fs from 'fs';
+import path from 'path';
 import OpenAI from 'openai';
 
 class VectorDBSetup {
   constructor() {
-    // Allow configuration via environment variables
-    const chromaHost = process.env.CHROMA_HOST || 'http://localhost';
-    const chromaPort = process.env.CHROMA_PORT || '8000';
-    const chromaUrl = `${chromaHost}:${chromaPort}`;
-    
-    this.client = new ChromaClient({
-      path: chromaUrl
-    });
-    this.collectionName = 'swapi_data';
-    console.log(`ChromaDB client configured for: ${chromaUrl}`);
+    // Set up LanceDB path
+    this.dbPath = path.join(process.cwd(), 'lancedb');
+    this.tableName = 'swapi_data';
+    this.db = null;
+    this.table = null;
+    console.log(`LanceDB configured at: ${this.dbPath}`);
   }
 
   async initialize(openaiApiKey) {
@@ -21,25 +18,14 @@ class VectorDBSetup {
       // Initialize OpenAI client
       this.openai = new OpenAI({ apiKey: openaiApiKey });
       
-      // Test connection to ChromaDB server
-      try {
-        await this.client.heartbeat();
-      } catch (error) {
-        throw new Error('ChromaDB server is not running. Please start ChromaDB server with: pip install chromadb && chroma run --host 0.0.0.0 --port 8000');
-      }
+      // Connect to LanceDB (creates directory if it doesn't exist)
+      this.db = await connect(this.dbPath);
       
-      // Create or get collection
-      try {
-        await this.client.deleteCollection({ name: this.collectionName });
-      } catch (error) {
-        // Collection might not exist, which is fine
+      // Check if table exists, if so drop it to recreate with fresh data
+      const tableNames = await this.db.tableNames();
+      if (tableNames.includes(this.tableName)) {
+        await this.db.dropTable(this.tableName);
       }
-      
-      this.collection = await this.client.createCollection({
-        name: this.collectionName,
-        metadata: { 'hnsw:space': 'cosine' },
-        embeddingFunction: null // Disable default embedding function since we provide custom embeddings
-      });
       
       console.log('Vector database initialized successfully');
       return true;
@@ -68,11 +54,7 @@ class VectorDBSetup {
       // Read the database.json file
       const dbData = JSON.parse(fs.readFileSync('./database.json', 'utf8'));
       
-      const documents = [];
-      const embeddings = [];
-      const metadatas = [];
-      const ids = [];
-
+      const records = [];
       let idCounter = 0;
 
       // Process each entity type
@@ -88,14 +70,17 @@ class VectorDBSetup {
               // Generate embedding
               const embedding = await this.generateEmbedding(textContent);
               
-              documents.push(textContent);
-              embeddings.push(embedding);
-              metadatas.push({
+              // Create record for LanceDB
+              const record = {
+                id: `${entityType}_${entity.id || idCounter++}`,
+                text: textContent,
+                vector: embedding,
                 entity_type: entityType,
                 entity_id: entity.id,
                 ...this.extractMetadata(entity)
-              });
-              ids.push(`${entityType}_${entity.id || idCounter++}`);
+              };
+              
+              records.push(record);
               
               // Small delay to avoid rate limiting
               await new Promise(resolve => setTimeout(resolve, 100));
@@ -106,15 +91,10 @@ class VectorDBSetup {
         }
       }
 
-      // Add all documents to the collection
-      await this.collection.add({
-        documents,
-        embeddings,
-        metadatas,
-        ids
-      });
+      // Create table and add all records
+      this.table = await this.db.createTable(this.tableName, records);
 
-      console.log(`Successfully ingested ${documents.length} documents into vector database`);
+      console.log(`Successfully ingested ${records.length} documents into vector database`);
       return true;
     } catch (error) {
       console.error('Failed to ingest data:', error.message);
@@ -411,14 +391,35 @@ class VectorDBSetup {
       this.openai = new OpenAI({ apiKey });
       const queryEmbedding = await this.generateEmbedding(query);
       
-      // Search for similar documents
-      const results = await this.collection.query({
-        queryEmbeddings: [queryEmbedding],
-        nResults: limit,
-        include: ['documents', 'metadatas', 'distances']
-      });
+      // Get table if not already loaded
+      if (!this.table) {
+        this.table = await this.db.openTable(this.tableName);
+      }
       
-      return results;
+      // Search for similar documents using vector similarity
+      const results = await this.table
+        .vectorSearch(queryEmbedding)
+        .limit(limit)
+        .toArray();
+      
+      // Format results to match the expected ChromaDB structure
+      const formattedResults = {
+        documents: [results.map(r => r.text)],
+        metadatas: [results.map(r => ({
+          entity_type: r.entity_type,
+          entity_id: r.entity_id,
+          name: r.name,
+          title: r.title,
+          episode_id: r.episode_id,
+          director: r.director,
+          producer: r.producer,
+          homeworld: r.homeworld,
+          species: r.species
+        }))],
+        distances: [results.map(r => r._distance)]
+      };
+      
+      return formattedResults;
     } catch (error) {
       console.error('Failed to search similar documents:', error.message);
       throw error;
@@ -427,9 +428,25 @@ class VectorDBSetup {
 
   async getCollection() {
     try {
-      return await this.client.getCollection({ name: this.collectionName });
+      if (!this.db) {
+        return null;
+      }
+      const tableNames = await this.db.tableNames();
+      return tableNames.includes(this.tableName) ? { name: this.tableName } : null;
     } catch (error) {
       return null;
+    }
+  }
+
+  async getStatus() {
+    try {
+      if (!this.db) {
+        return 'not_initialized';
+      }
+      const tableNames = await this.db.tableNames();
+      return tableNames.includes(this.tableName) ? 'ready' : 'not_initialized';
+    } catch (error) {
+      return 'error';
     }
   }
 }

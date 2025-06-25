@@ -414,35 +414,25 @@ const vectorDB = new VectorDBSetup();
  */
 app.get('/api/status', async (req, res) => {
   try {
-    // Test ChromaDB server connection
-    let chromaStatus = 'unknown';
-    let chromaError = null;
+    // Test LanceDB status
+    let dbStatus = 'unknown';
+    let dbError = null;
     
     try {
-      await vectorDB.client.heartbeat();
-      chromaStatus = 'server_running';
-      
-      // Check if collection exists
-      const collection = await vectorDB.getCollection();
-      if (collection !== null) {
-        chromaStatus = 'ready';
-      } else {
-        chromaStatus = 'not_initialized';
-      }
+      dbStatus = await vectorDB.getStatus();
     } catch (error) {
-      chromaStatus = 'server_not_running';
-      chromaError = error.message;
+      dbStatus = 'error';
+      dbError = error.message;
     }
     
     const response = {
       api: 'running',
-      vectorDatabase: chromaStatus,
+      vectorDatabase: dbStatus,
       timestamp: new Date().toISOString()
     };
     
-    if (chromaError) {
-      response.error = chromaError;
-      response.suggestion = 'Start ChromaDB server with: pip install chromadb && chroma run --host 0.0.0.0 --port 8000';
+    if (dbError) {
+      response.error = dbError;
     }
     
     res.json(response);

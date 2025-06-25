@@ -1,7 +1,7 @@
 **/node_modules
 
 .venv/
-chroma/
+lancedb/
 *.pyc
 staticfiles
 .env
