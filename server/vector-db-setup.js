@@ -36,8 +36,25 @@ class VectorDBSetup {
       // This prevents issues where initialize is called multiple times
       const tableNames = await this.db.tableNames();
       if (tableNames.includes(this.tableName)) {
-        console.log(`Table '${this.tableName}' already exists - will be handled during data ingestion`);
-        this.emitProgress('vectordb_init', 'Found existing table - will refresh during data ingestion');
+        console.log(`Table '${this.tableName}' already exists - checking if it's populated`);
+        
+        // Check if the table has data
+        try {
+          const table = await this.db.openTable(this.tableName);
+          const count = await table.countRows();
+          if (count > 0) {
+            console.log(`Pre-built database found with ${count} records`);
+            this.emitProgress('vectordb_init', `Pre-built database found with ${count} records - ready to use`);
+            this.table = table;
+            return true;
+          } else {
+            console.log(`Table exists but is empty - will need to ingest data`);
+            this.emitProgress('vectordb_init', 'Table exists but is empty - will need to ingest data');
+          }
+        } catch (tableError) {
+          console.log(`Error checking table contents: ${tableError.message} - will refresh table`);
+          this.emitProgress('vectordb_init', 'Error checking table contents - will refresh table');
+        }
       } else {
         console.log(`No existing table '${this.tableName}' found - will create during data ingestion`);
         this.emitProgress('vectordb_init', 'No existing table found - will create during data ingestion');
@@ -766,9 +783,36 @@ class VectorDBSetup {
         return null;
       }
       const tableNames = await this.db.tableNames();
-      return tableNames.includes(this.tableName) ? { name: this.tableName } : null;
+      if (tableNames.includes(this.tableName)) {
+        // Check if table has data
+        try {
+          const table = await this.db.openTable(this.tableName);
+          const count = await table.countRows();
+          return count > 0 ? { name: this.tableName, count } : null;
+        } catch (error) {
+          return null;
+        }
+      }
+      return null;
     } catch (error) {
       return null;
+    }
+  }
+
+  async isDatabasePopulated() {
+    try {
+      if (!this.db) {
+        return false;
+      }
+      const tableNames = await this.db.tableNames();
+      if (tableNames.includes(this.tableName)) {
+        const table = await this.db.openTable(this.tableName);
+        const count = await table.countRows();
+        return count > 0;
+      }
+      return false;
+    } catch (error) {
+      return false;
     }
   }
 

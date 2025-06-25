@@ -667,15 +667,29 @@ app.post('/api/query', async (req, res) => {
         });
       }
       
+      // Check if database is already populated (from pre-built database)
+      const isPopulated = await vectorDB.isDatabasePopulated();
+      if (!isPopulated) {
+        if (sessionId) {
+          sendProgress(sessionId, 'query_step', 'Pre-built database not found. Ingesting data into vector database...');
+        }
+        console.log('Pre-built database not found. Ingesting data into vector database...');
+        const ingested = await vectorDB.ingestData();
+        if (!ingested) {
+          return res.status(500).json({ error: 'Failed to ingest data into vector database' });
+        }
+        console.log('Vector database setup complete');
+      } else {
+        if (sessionId) {
+          sendProgress(sessionId, 'query_step', 'Using pre-built vector database');
+        }
+        console.log('Using pre-built vector database');
+      }
+    } else {
       if (sessionId) {
-        sendProgress(sessionId, 'query_step', 'Ingesting data into vector database...');
+        sendProgress(sessionId, 'query_step', `Using existing vector database with ${collection.count || 'unknown'} records`);
       }
-      console.log('Ingesting data into vector database...');
-      const ingested = await vectorDB.ingestData();
-      if (!ingested) {
-        return res.status(500).json({ error: 'Failed to ingest data into vector database' });
-      }
-      console.log('Vector database setup complete');
+      console.log(`Using existing vector database with ${collection.count || 'unknown'} records`);
     }
 
     // Vector search phase
