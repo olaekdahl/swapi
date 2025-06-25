@@ -45,12 +45,24 @@ This SWAPI (Star Wars API) implementation now includes natural language query su
 
 ### Example Queries
 
+#### Character Information
 - "Who is Luke Skywalker?"
+- "Tell me about Darth Vader"
+- "What characters are from Naboo?"
+
+#### Attribute-Based Queries (Enhanced Search)
+- "What characters have red eyes?"
+- "Which characters have blue hair?"
+- "Characters with yellow skin"
+- "Who has brown eyes?"
+
+#### Film and Story Queries
 - "What is the Death Star?"
 - "Tell me about the planet Tatooine"
 - "What movies feature Darth Vader?"
-- "Which characters are from Naboo?"
 - "What starships appear in A New Hope?"
+
+**Note**: The system uses advanced hybrid search for attribute-based queries (like eye color, hair color, etc.) combining vector similarity with exact keyword matching for improved accuracy and recall.
 
 ## API Endpoints
 

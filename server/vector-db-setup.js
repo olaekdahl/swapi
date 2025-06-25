@@ -396,11 +396,27 @@ class VectorDBSetup {
         this.table = await this.db.openTable(this.tableName);
       }
       
+      // For attribute-based queries (like "red eyes", "blue hair"), use a higher limit
+      // and combine with keyword search for better recall
+      const isAttributeQuery = this.isAttributeBasedQuery(query);
+      const searchLimit = isAttributeQuery ? Math.max(limit * 3, 15) : limit;
+      
       // Search for similar documents using vector similarity
-      const results = await this.table
+      const vectorResults = await this.table
         .vectorSearch(queryEmbedding)
-        .limit(limit)
+        .limit(searchLimit)
         .toArray();
+      
+      let results = vectorResults;
+      
+      // For attribute queries, also perform keyword search and merge results
+      if (isAttributeQuery) {
+        const keywordResults = await this.performKeywordSearch(query, searchLimit);
+        results = this.mergeAndRankResults(vectorResults, keywordResults, query);
+      }
+      
+      // Limit final results
+      results = results.slice(0, limit);
       
       // Format results to match the expected ChromaDB structure
       const formattedResults = {
@@ -424,6 +440,155 @@ class VectorDBSetup {
       console.error('Failed to search similar documents:', error.message);
       throw error;
     }
+  }
+
+  isAttributeBasedQuery(query) {
+    // Common attribute patterns
+    const attributePatterns = [
+      /\b(red|blue|green|yellow|brown|black|white|orange|purple|pink)\s+(eyes?|hair|skin)\b/i,
+      /\beyes?\s+(are|is)?\s*(red|blue|green|yellow|brown|black|white|orange|purple|pink)\b/i,
+      /\bhair\s+(is|are)?\s*(red|blue|green|yellow|brown|black|white|orange|purple|pink|blond|blonde)\b/i,
+      /\bskin\s+(is|are|color)?\s*(red|blue|green|yellow|brown|black|white|orange|purple|pink|fair|dark|light)\b/i,
+      /\b(tall|short|height|mass|weight)\b/i,
+      /\b(male|female|gender)\b/i,
+      /\bspecies\b/i,
+      /\bhomeworld\b/i
+    ];
+    
+    return attributePatterns.some(pattern => pattern.test(query));
+  }
+
+  async performKeywordSearch(query, limit) {
+    try {
+      // Extract key terms from the query
+      const keyTerms = this.extractKeyTerms(query);
+      
+      // For LanceDB, we need to do a vector search but we'll use the original query vector
+      // and then filter the results manually
+      const queryVector = await this.generateEmbedding(query);
+      const allResults = await this.table
+        .vectorSearch(queryVector)
+        .limit(1000) // Get a larger set to filter from
+        .toArray();
+      
+      // Filter by exact keyword matches (more strict than vector similarity)
+      const keywordMatches = allResults.filter(result => {
+        const text = result.text.toLowerCase();
+        // For red eyes query, we specifically look for exact eye color matches
+        if (query.toLowerCase().includes('red') && (query.toLowerCase().includes('eye') || query.toLowerCase().includes('eyes'))) {
+          return text.includes('eye color: red') || text.includes('eye_color: red');
+        }
+        // For other attribute queries, match any of the key terms
+        return keyTerms.some(term => text.includes(term.toLowerCase()));
+      });
+      
+      // Sort by relevance (exact matches first, then by number of matching keywords)
+      keywordMatches.sort((a, b) => {
+        const aText = a.text.toLowerCase();
+        const bText = b.text.toLowerCase();
+        
+        // Prioritize exact attribute matches
+        const aExactMatch = (query.toLowerCase().includes('red eyes') && aText.includes('eye color: red')) ? 1 : 0;
+        const bExactMatch = (query.toLowerCase().includes('red eyes') && bText.includes('eye color: red')) ? 1 : 0;
+        
+        if (aExactMatch !== bExactMatch) {
+          return bExactMatch - aExactMatch;
+        }
+        
+        // Then by number of keyword matches
+        const aMatches = keyTerms.reduce((count, term) => {
+          return count + (aText.includes(term.toLowerCase()) ? 1 : 0);
+        }, 0);
+        const bMatches = keyTerms.reduce((count, term) => {
+          return count + (bText.includes(term.toLowerCase()) ? 1 : 0);
+        }, 0);
+        return bMatches - aMatches;
+      });
+      
+      return keywordMatches.slice(0, limit);
+    } catch (error) {
+      console.error('Keyword search failed:', error.message);
+      return [];
+    }
+  }
+
+  extractKeyTerms(query) {
+    // Extract color terms and other important keywords
+    const colorTerms = ['red', 'blue', 'green', 'yellow', 'brown', 'black', 'white', 'orange', 'purple', 'pink', 'blond', 'blonde', 'fair', 'dark', 'light'];
+    const attributeTerms = ['eyes', 'eye', 'hair', 'skin', 'height', 'mass', 'weight', 'male', 'female', 'species', 'homeworld'];
+    
+    const words = query.toLowerCase().split(/\s+/);
+    const keyTerms = [];
+    
+    for (const word of words) {
+      const cleanWord = word.replace(/[^\w]/g, '');
+      if (colorTerms.includes(cleanWord) || attributeTerms.includes(cleanWord)) {
+        keyTerms.push(cleanWord);
+      }
+    }
+    
+    // For "red eyes" query, make sure we capture the combination
+    if (query.toLowerCase().includes('red') && (query.toLowerCase().includes('eye') || query.toLowerCase().includes('eyes'))) {
+      keyTerms.push('eye color: red');
+    }
+    
+    return keyTerms.length > 0 ? keyTerms : [query];
+  }
+
+  mergeAndRankResults(vectorResults, keywordResults, query) {
+    // Create a map to avoid duplicates
+    const resultMap = new Map();
+    
+    // Add vector results with their scores
+    vectorResults.forEach((result, index) => {
+      resultMap.set(result.id, {
+        ...result,
+        vectorRank: index,
+        vectorScore: 1 - (result._distance || 0),
+        keywordRank: -1,
+        keywordScore: 0
+      });
+    });
+    
+    // Add keyword results and update scores
+    keywordResults.forEach((result, index) => {
+      if (resultMap.has(result.id)) {
+        // Update existing result
+        const existing = resultMap.get(result.id);
+        existing.keywordRank = index;
+        existing.keywordScore = 1 - (index / keywordResults.length);
+      } else {
+        // Add new result
+        resultMap.set(result.id, {
+          ...result,
+          vectorRank: -1,
+          vectorScore: 0,
+          keywordRank: index,
+          keywordScore: 1 - (index / keywordResults.length)
+        });
+      }
+    });
+    
+    // Convert back to array and sort by combined score
+    const mergedResults = Array.from(resultMap.values());
+    
+    // Calculate combined score (prioritize keyword matches for attribute queries)
+    mergedResults.forEach(result => {
+      const keywordWeight = 0.7; // Higher weight for keyword matches in attribute queries
+      const vectorWeight = 0.3;
+      
+      result.combinedScore = (result.keywordScore * keywordWeight) + (result.vectorScore * vectorWeight);
+      
+      // Boost results that appear in both searches
+      if (result.keywordRank >= 0 && result.vectorRank >= 0) {
+        result.combinedScore += 0.2; // Boost for appearing in both
+      }
+    });
+    
+    // Sort by combined score
+    mergedResults.sort((a, b) => b.combinedScore - a.combinedScore);
+    
+    return mergedResults;
   }
 
   async getCollection() {

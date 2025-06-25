@@ -602,8 +602,11 @@ app.post('/api/query', async (req, res) => {
       console.log('Vector database setup complete');
     }
 
-    // Search for similar content
-    const searchResults = await vectorDB.searchSimilar(query.trim(), apiKey.trim(), 5);
+    // Search for similar content (use higher limit for attribute queries)
+    const isAttributeQuery = /\b(red|blue|green|yellow|brown|black|white|orange|purple|pink)\s+(eyes?|hair|skin)\b/i.test(query.trim()) ||
+                            /\beyes?\s+(are|is)?\s*(red|blue|green|yellow|brown|black|white|orange|purple|pink)\b/i.test(query.trim());
+    const searchLimit = isAttributeQuery ? 10 : 5;
+    const searchResults = await vectorDB.searchSimilar(query.trim(), apiKey.trim(), searchLimit);
     
     // Extract relevant context from search results
     const context = searchResults.documents[0].map((doc, index) => {
