@@ -191,7 +191,7 @@ function App() {
             <strong>System Status:</strong> API is {status.api}, 
             Vector Database is {status.vectorDatabase}
             {status.vectorDatabase === 'not_initialized' && (
-              <span> (. The in-memory database (LanceDB) initializes on first query and will take a few minutes to provision.)</span>
+              <span>. The in-memory database (LanceDB) initializes on first query and will take a few minutes to provision.</span>
             )}
           </div>
         )}
