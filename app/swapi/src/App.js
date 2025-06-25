@@ -391,7 +391,7 @@ function App() {
         padding: '1rem',
         borderTop: '1px solid #eee'
       }}>
-        Version: commit 12d5e44b58a977138c9d040186e825a4d18aae19
+        Version: commit PLACEHOLDER_COMMIT_SHA
       </div>
     </div>
   );
