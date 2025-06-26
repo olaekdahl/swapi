@@ -16,3 +16,6 @@ app/swapi/build/
 # Server build files and backups
 server/nlq-build/
 server/database.json.backup
+
+# Test coverage files
+server/coverage/
