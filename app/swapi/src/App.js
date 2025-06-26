@@ -391,7 +391,8 @@ function App() {
         padding: '1rem',
         borderTop: '1px solid #eee'
       }}>
-        Version: commit PLACEHOLDER_COMMIT_SHA
+        Version: commit PLACEHOLDER_COMMIT_SHA<br/>
+        Deployed: {new Date('PLACEHOLDER_DEPLOY_TIMESTAMP').toLocaleString()}
       </div>
     </div>
   );
