@@ -1,5 +1,8 @@
 # SWAPI - Star Wars API with Natural Language Query
 
+[![CI](https://github.com/olaekdahl/swapi/actions/workflows/pr-test.yml/badge.svg)](https://github.com/olaekdahl/swapi/actions/workflows/pr-test.yaml)
+[![CD](https://github.com/olaekdahl/swapi/actions/workflows/cd.yml/badge.svg)](https://github.com/olaekdahl/swapi/actions/workflows/cd.yml)
+
 ## The Star Wars API
 
 [swapi.dev](https://swapi.dev) fork with enhanced natural language query capabilities.
@@ -15,6 +18,7 @@ An "unofficial" fork of "swapi" from https://github.com/Juriy/swapi re-written u
 ## Tech Stack
 
 ### Backend
+
 - **Node.js** with **Express.js** - RESTful API server
 - **LanceDB** - Embedded vector database for semantic search
 - **OpenAI API** - GPT models and text embeddings
@@ -24,11 +28,13 @@ An "unofficial" fork of "swapi" from https://github.com/Juriy/swapi re-written u
 - **JSON Server** - Alternative data serving
 
 ### Frontend
+
 - **React.js** - Modern web interface for natural language queries
 - **HTML/CSS** - Classic web interface for API documentation
 - **Server-Side Events (SSE)** - Real-time progress updates
 
 ### Database
+
 - **JSON file storage** - Star Wars data in database.json
 - **Vector embeddings** - Semantic search capabilities
 - **Relationship mapping** - Many-to-many entity relationships
@@ -36,11 +42,13 @@ An "unofficial" fork of "swapi" from https://github.com/Juriy/swapi re-written u
 ## Features
 
 ### Core API Features
+
 - **RESTful API** - Access to all Star Wars data
 - **Swagger Documentation** - Interactive API documentation at `/api-docs`
 - **CORS Support** - Cross-origin requests enabled
 
 ### Natural Language Query Features
+
 - **Natural Language Queries** - Ask questions about Star Wars in plain English
 - **Embedded Vector Database** - Uses LanceDB embedded in the Node.js server
 - **OpenAI Integration** - Leverages GPT models for intelligent responses
@@ -87,9 +95,11 @@ Many-to-many relationships between entities:
 ### Natural Language Query API Endpoints
 
 #### GET `/api/status`
+
 Returns the system status including vector database initialization state.
 
 **Response**:
+
 ```json
 {
   "api": "running",
@@ -99,9 +109,11 @@ Returns the system status including vector database initialization state.
 ```
 
 #### POST `/api/models`
+
 Fetches available OpenAI models for the provided API key.
 
 **Request**:
+
 ```json
 {
   "apiKey": "sk-your-openai-api-key"
@@ -109,6 +121,7 @@ Fetches available OpenAI models for the provided API key.
 ```
 
 **Response**:
+
 ```json
 {
   "models": [
@@ -122,9 +135,11 @@ Fetches available OpenAI models for the provided API key.
 ```
 
 #### POST `/api/query`
+
 Process a natural language query using RAG.
 
 **Request**:
+
 ```json
 {
   "apiKey": "sk-your-openai-api-key",
@@ -134,6 +149,7 @@ Process a natural language query using RAG.
 ```
 
 **Response**:
+
 ```json
 {
   "query": "Who is Luke Skywalker?",
@@ -166,21 +182,25 @@ Process a natural language query using RAG.
 ### Getting Started
 
 1. **Start the Backend Server**:
+
    ```bash
    cd server
    npm install
    npm start
    ```
+  
    Server will run on http://localhost:3000
-   
+  
    The LanceDB vector database will be automatically created and embedded in the server - no separate database server setup required!
 
 2. **Start the Frontend** (Optional - for Natural Language Queries):
+
    ```bash
    cd app/swapi
    npm install
    npm start
    ```
+
    Frontend will run on http://localhost:3001 (or another available port)
 
 3. **Use the Interface**:
@@ -195,24 +215,28 @@ Process a natural language query using RAG.
 ### Example Queries
 
 #### Character Information
+
 - "Who is Luke Skywalker?"
 - "Tell me about Darth Vader"
 - "What characters are from Naboo?"
 - "What movies is Luke Skywalker in?" **(Enhanced with API tool calls)**
 
 #### Attribute-Based Queries (Enhanced Search)
+
 - "What characters have red eyes?" **(Enhanced with search tool)**
 - "Which characters have blue hair?"
 - "Characters with yellow skin"
 - "Who has brown eyes?"
 
 #### Film and Story Queries
+
 - "What is the Death Star?"
 - "Tell me about the planet Tatooine"
 - "What movies feature Darth Vader?" **(Enhanced with API tool calls)**
 - "What starships appear in A New Hope?" **(Enhanced with API tool calls)**
 
 #### Detailed Relationship Queries **(New with LangChain)**
+
 - "Who pilots the Millennium Falcon?" 
 - "What characters are from Tatooine?"
 - "Which films feature the Death Star?"
@@ -232,6 +256,7 @@ The system uses a **hybrid approach** combining vector search with intelligent A
 4. **Comprehensive Response** - Combines initial vector context with fresh, complete API data
 
 #### Tool Integration Workflow
+
 ```
 User Query → Vector Search → Initial Context → LangChain Agent Analysis
                                                         ↓
@@ -243,6 +268,7 @@ API Calls via Selected Tools → Fresh Data → Combined with Vector Context
 ```
 
 #### Custom Tool Benefits
+
 - **Accuracy**: Direct API access ensures up-to-date, complete information
 - **Relationships**: Tools can follow entity relationships (e.g., character → films → other characters)
 - **Attribute Search**: Advanced filtering capabilities beyond basic vector similarity
@@ -254,6 +280,7 @@ API Calls via Selected Tools → Fresh Data → Combined with Vector Context
 The system includes **12 specialized tools** built with LangChain's `DynamicStructuredTool` class, each designed for specific Star Wars data access patterns:
 
 #### Core Entity Tools
+
 - **`get_character`** - Get detailed character information by ID
   - *Schema*: `{ id: number }`
   - *Purpose*: Retrieves complete character data including name, physical attributes, homeworld, etc.
@@ -279,6 +306,7 @@ The system includes **12 specialized tools** built with LangChain's `DynamicStru
   - *Purpose*: Retrieves vehicle specifications including model, class, crew capacity, etc.
 
 #### Relationship Mapping Tools
+
 - **`get_character_films`** - Get all films featuring a specific character
 - **`get_film_characters`** - Get all characters appearing in a specific film
 - **`get_planet_characters`** - Get all characters from a specific planet (homeworld)
@@ -286,6 +314,7 @@ The system includes **12 specialized tools** built with LangChain's `DynamicStru
 - **`get_species_characters`** - Get all characters belonging to a specific species
 
 #### Advanced Search Tool
+
 - **`search_characters`** - Advanced character attribute search
   - *Schema*: `{ attribute: string }`
   - *Purpose*: Searches all characters for specific attributes like "red eyes", "blue hair", "yellow skin"
@@ -295,6 +324,7 @@ The system includes **12 specialized tools** built with LangChain's `DynamicStru
 ### Tool Implementation Architecture
 
 #### Technical Foundation
+
 ```javascript
 // Built using LangChain's DynamicStructuredTool with Zod validation
 import { DynamicStructuredTool } from '@langchain/core/tools';
@@ -314,19 +344,23 @@ export const getCharacterTool = new DynamicStructuredTool({
 ```
 
 #### API Integration
+
 - **Base URL**: `http://localhost:3000/api` - All tools connect to the local SWAPI server
 - **HTTP Client**: Uses Axios for reliable HTTP requests with automatic JSON parsing
 - **Response Format**: All tools return JSON.stringify'd responses for consistent LangChain consumption
 - **Error Handling**: Comprehensive try-catch blocks with descriptive error messages
 
 #### Tool Selection Intelligence
+
 The LangChain agent automatically selects appropriate tools based on:
+
 1. **Query Analysis**: Natural language processing to identify entities and relationships
 2. **Context Awareness**: Uses initial vector search results to determine which IDs to query
 3. **Tool Descriptions**: Rich descriptions guide the agent's tool selection decisions
 4. **Schema Validation**: Zod schemas ensure proper parameter types and validation
 
 #### Entity ID Extraction
+
 ```javascript
 // Helper function extracts relevant entity IDs from vector search context
 export function extractEntityIds(context) {
@@ -339,6 +373,7 @@ export function extractEntityIds(context) {
 ```
 
 #### Error Resilience
+
 - **Network Error Handling**: Graceful handling of API connection failures
 - **Invalid ID Handling**: Descriptive error messages for non-existent entities
 - **Rate Limiting Awareness**: Built to handle API rate limits without breaking agent flow
@@ -347,6 +382,7 @@ export function extractEntityIds(context) {
 ### LangChain Tools Implementation Details
 
 #### Tool Construction Pattern
+
 All custom tools follow a consistent implementation pattern using LangChain's `DynamicStructuredTool`:
 
 ```javascript
@@ -368,6 +404,7 @@ export const getCharacterTool = new DynamicStructuredTool({
 ```
 
 #### Advanced Search Tool Implementation
+
 The `search_characters` tool demonstrates sophisticated attribute parsing:
 
 ```javascript
@@ -391,6 +428,7 @@ export const searchCharactersTool = new DynamicStructuredTool({
 ```
 
 #### Tool Array Export and Integration
+
 ```javascript
 // All tools exported as a single array for easy agent integration
 export const swapiTools = [
@@ -407,6 +445,7 @@ const agent = await createToolCallingAgent({
 ```
 
 #### Context-Based Entity Extraction
+
 The system includes intelligent entity ID extraction from vector search results:
 
 ```javascript
@@ -429,6 +468,7 @@ export function extractEntityIds(context) {
 ```
 
 #### Agent Prompt Integration
+
 Tools are integrated into the agent system with comprehensive guidance:
 
 ```javascript
@@ -450,6 +490,7 @@ Use the tools strategically to provide the most complete and accurate answer pos
 ```
 
 ### Vector Database
+
 - Uses **LanceDB** embedded in the Node.js server for storing and searching vector embeddings
 - Data is automatically ingested from `database.json` on first query
 - Uses OpenAI's `text-embedding-3-small` model for embeddings
@@ -457,6 +498,7 @@ Use the tools strategically to provide the most complete and accurate answer pos
 - No external database server required - fully embedded solution
 
 ### Enhanced RAG Process
+
 1. **Query Embedding**: User query is converted to vector embedding using OpenAI's `text-embedding-3-small`
 2. **Vector Similarity Search**: LanceDB performs semantic search to find initially relevant Star Wars data
 3. **Context Analysis**: System extracts entity IDs from vector search metadata using `extractEntityIds()` helper
@@ -473,6 +515,7 @@ Use the tools strategically to provide the most complete and accurate answer pos
 8. **Structured Output**: Response includes answer, context sources, tool usage, and relevance scores
 
 ### Security
+
 - API keys are not stored on the server
 - Input validation for all parameters
 - Rate limiting awareness and error handling
@@ -481,6 +524,7 @@ Use the tools strategically to provide the most complete and accurate answer pos
 ## Data Source
 
 The system uses the existing Star Wars API data from `database.json` which includes:
+
 - Films
 - Characters
 - Planets
@@ -493,6 +537,7 @@ All data is processed and vectorized to enable semantic search capabilities.
 ## Error Handling
 
 The system includes comprehensive error handling for:
+
 - Invalid API keys
 - Rate limiting
 - Model availability
@@ -509,6 +554,7 @@ The system includes comprehensive error handling for:
 - **OpenAI API issues**: Make sure your API key is valid and has sufficient credits
 
 - **Port conflicts**: If port 3000 is in use, the server will fail to start. Use a different port:
+
   ```bash
   PORT=3001 npm start
   ```
@@ -523,7 +569,7 @@ To extend or modify the system:
    - `index.js`: Main Express server with API endpoints and LangChain agent integration
    - `langchain-tools.js`: **Custom LangChain tools** - Add new tools or modify existing ones here
    - `vector-db-setup.js`: Vector database operations using LanceDB
-   
+
 2. **Frontend**: Edit files in `/app/swapi/src` directory
    - `App.js`: Main React component
    - `App.css`: Styling
@@ -535,6 +581,7 @@ To extend or modify the system:
 To add new custom tools to the LangChain agent:
 
 1. **Create New Tool** in `langchain-tools.js`:
+
 ```javascript
 export const getNewEntityTool = new DynamicStructuredTool({
   name: 'get_new_entity',
@@ -549,6 +596,7 @@ export const getNewEntityTool = new DynamicStructuredTool({
 ```
 
 2. **Add to Tools Array**:
+
 ```javascript
 export const swapiTools = [
   // ... existing tools

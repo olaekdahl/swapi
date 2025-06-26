@@ -1,4 +1,4 @@
-name: Push_To_ACR_And_Deploy_To_Azure_WebApp
+name: Push To ACR And Deploy To Azure WebApp
 on: 
   push:
     paths-ignore:
