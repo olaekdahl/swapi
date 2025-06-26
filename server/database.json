@@ -53,6 +53,51 @@
       "director": "George Lucas",
       "release_date": "2005-05-19",
       "opening_crawl": "War! The Republic is crumbling\r\nunder attacks by the ruthless\r\nSith Lord, Count Dooku.\r\nThere are heroes on both sides.\r\nEvil is everywhere.\r\n\r\nIn a stunning move, the\r\nfiendish droid leader, General\r\nGrievous, has swept into the\r\nRepublic capital and kidnapped\r\nChancellor Palpatine, leader of\r\nthe Galactic Senate.\r\n\r\nAs the Separatist Droid Army\r\nattempts to flee the besieged\r\ncapital with their valuable\r\nhostage, two Jedi Knights lead a\r\ndesperate mission to rescue the\r\ncaptive Chancellor...."
+    },
+    {
+      "id": 7,
+      "title": "The Force Awakens",
+      "episode_id": 7,
+      "director": "J.J. Abrams",
+      "producer": "Kathleen Kennedy, J.J. Abrams, Bryan Burk",
+      "release_date": "2015-12-18",
+      "opening_crawl": "Luke Skywalker has vanished. In his absence, the sinister FIRST ORDER has risen from the ashes of the Empire and will not rest until Skywalker, the last Jedi, has been destroyed.\r\n\r\nWith the support of the REPUBLIC, General Leia Organa leads a brave RESISTANCE. She is desperate to find her brother Luke and gain his help in restoring peace and justice to the galaxy.\r\n\r\nLeia has sent her most daring pilot on a secret mission to Jakku, where an old ally has discovered a clue to Luke\u2019s whereabouts..."
+    },
+    {
+      "id": 8,
+      "title": "The Last Jedi",
+      "episode_id": 8,
+      "director": "Rian Johnson",
+      "producer": "Kathleen Kennedy, Ram Bergman",
+      "release_date": "2017-12-15",
+      "opening_crawl": "The FIRST ORDER reigns. Having decimated the peaceful Republic, Supreme Leader Snoke now deploys his merciless legions to seize military control of the galaxy.\r\n\r\nOnly General Leia Organa's band of RESISTANCE fighters stand against the rising tyranny, certain that Jedi Master Luke Skywalker will return and restore a spark of hope to the fight.\r\n\r\nBut the Resistance has been exposed. As the First Order speeds toward the rebel base, the brave heroes mount a desperate escape...."
+    },
+    {
+      "id": 9,
+      "title": "The Rise of Skywalker",
+      "episode_id": 9,
+      "director": "J.J. Abrams",
+      "producer": "Kathleen Kennedy, J.J. Abrams, Michelle Rejwan",
+      "release_date": "2019-12-20",
+      "opening_crawl": "The dead speak! The galaxy has heard a mysterious broadcast, a threat of REVENGE in the sinister voice of the late EMPEROR PALPATINE.\r\n\r\nGENERAL LEIA ORGANA dispatches secret agents to gather intelligence, while REY, the last hope of the Jedi, trains for battle against the diabolical FIRST ORDER.\r\n\r\nMeanwhile, Supreme Leader KYLO REN rages in search of the phantom Emperor, determined to destroy any threat to his power...."
+    },
+    {
+      "id": 10,
+      "title": "Rogue One: A Star Wars Story",
+      "episode_id": 0,
+      "director": "Gareth Edwards",
+      "producer": "Kathleen Kennedy, Allison Shearmur, Simon Emanuel",
+      "release_date": "2016-12-16",
+      "opening_crawl": "A rebellion built on hope. As the Galactic Empire nears completion of its ultimate weapon, the Death Star, a small band of rebels forms a plan to steal the secret blueprint.\r\n\r\nLed by Jyn Erso, daughter of the Death Star\u2019s reluctant architect, the rogue team sets out on a desperate mission to retrieve the plans and ignite the spark of rebellion...."
+    },
+    {
+      "id": 11,
+      "title": "Solo: A Star Wars Story",
+      "episode_id": 0,
+      "director": "Ron Howard",
+      "producer": "Kathleen Kennedy, Allison Shearmur, Simon Emanuel",
+      "release_date": "2018-05-25",
+      "opening_crawl": "Board the Millennium Falcon and journey to a galaxy far, far away in Solo: A Star Wars Story, an all-new adventure with the most beloved scoundrel in the galaxy.\r\n\r\nThrough a series of daring escapades deep within a dark and dangerous criminal underworld, Han Solo meets his mighty future copilot Chewbacca and encounters the notorious gambler Lando Calrissian..."
     }
   ],
   "planets": [
@@ -775,6 +820,54 @@
       "gravity": "unknown",
       "orbital_period": "unknown",
       "population": "unknown"
+    },
+    {
+      "id": 61,
+      "name": "Jakku",
+      "climate": "arid",
+      "surface_water": "5",
+      "diameter": "11000",
+      "rotation_period": "20",
+      "terrain": "desert",
+      "gravity": "1 standard",
+      "orbital_period": "318",
+      "population": "unknown"
+    },
+    {
+      "id": 62,
+      "name": "Ahch-To",
+      "climate": "temperate",
+      "surface_water": "95",
+      "diameter": "8900",
+      "rotation_period": "24",
+      "terrain": "islands, oceans",
+      "gravity": "1 standard",
+      "orbital_period": "400",
+      "population": "unknown"
+    },
+    {
+      "id": 63,
+      "name": "Exegol",
+      "climate": "dark, stormy",
+      "surface_water": "unknown",
+      "diameter": "12900",
+      "rotation_period": "24",
+      "terrain": "rocky, barren",
+      "gravity": "1 standard",
+      "orbital_period": "500",
+      "population": "unknown"
+    },
+    {
+      "id": 64,
+      "name": "Scarif",
+      "climate": "tropical",
+      "surface_water": "75",
+      "diameter": "12000",
+      "rotation_period": "23",
+      "terrain": "islands, beaches, oceans",
+      "gravity": "1 standard",
+      "orbital_period": "300",
+      "population": "unknown"
     }
   ],
   "species": [
@@ -1488,6 +1581,24 @@
       "id": 75,
       "MGLT": "unknown",
       "starship_class": "starfighter",
+      "hyperdrive_rating": "1.0"
+    },
+    {
+      "id": 76,
+      "MGLT": "unknown",
+      "starship_class": "resistance transport",
+      "hyperdrive_rating": "1.0"
+    },
+    {
+      "id": 77,
+      "MGLT": "unknown",
+      "starship_class": "TIE silencer",
+      "hyperdrive_rating": "1.0"
+    },
+    {
+      "id": 78,
+      "MGLT": "unknown",
+      "starship_class": "U-wing",
       "hyperdrive_rating": "1.0"
     }
   ],
@@ -2548,6 +2659,14 @@
     },
     {
       "id": 76,
+      "vehicle_class": "walker"
+    },
+    {
+      "id": 77,
+      "vehicle_class": "speeder"
+    },
+    {
+      "id": 78,
       "vehicle_class": "walker"
     }
   ],
@@ -3617,6 +3736,71 @@
       "homeworld": 12,
       "birth_year": "unknown",
       "species_id": 37
+    },
+    {
+      "id": 84,
+      "name": "Rey",
+      "gender": "female",
+      "skin_color": "light",
+      "hair_color": "brown",
+      "height": "170",
+      "eye_color": "hazel",
+      "mass": "54",
+      "homeworld": 1,
+      "birth_year": "15ABY",
+      "species_id": 1
+    },
+    {
+      "id": 85,
+      "name": "Finn",
+      "gender": "male",
+      "skin_color": "dark",
+      "hair_color": "black",
+      "height": "178",
+      "eye_color": "brown",
+      "mass": "80",
+      "homeworld": 1,
+      "birth_year": "unknown",
+      "species_id": 1
+    },
+    {
+      "id": 86,
+      "name": "Poe Dameron",
+      "gender": "male",
+      "skin_color": "light",
+      "hair_color": "black",
+      "height": "176",
+      "eye_color": "brown",
+      "mass": "84",
+      "homeworld": 22,
+      "birth_year": "2ABY",
+      "species_id": 1
+    },
+    {
+      "id": 87,
+      "name": "Jyn Erso",
+      "gender": "female",
+      "skin_color": "light",
+      "hair_color": "brown",
+      "height": "167",
+      "eye_color": "green",
+      "mass": "58",
+      "homeworld": 1,
+      "birth_year": "21BBY",
+      "species_id": 1
+    },
+    {
+      "id": 88,
+      "name": "Cassian Andor",
+      "gender": "male",
+      "skin_color": "light",
+      "hair_color": "brown",
+      "height": "180",
+      "eye_color": "brown",
+      "mass": "74",
+      "homeworld": 1,
+      "birth_year": "26BBY",
+      "species_id": 1
     }
   ],
   "films_characters": [
@@ -4267,6 +4451,90 @@
     {
       "film_id": 6,
       "character_id": 83
+    },
+    {
+      "film_id": 7,
+      "character_id": 84
+    },
+    {
+      "film_id": 7,
+      "character_id": 85
+    },
+    {
+      "film_id": 7,
+      "character_id": 86
+    },
+    {
+      "film_id": 8,
+      "character_id": 84
+    },
+    {
+      "film_id": 8,
+      "character_id": 85
+    },
+    {
+      "film_id": 8,
+      "character_id": 86
+    },
+    {
+      "film_id": 9,
+      "character_id": 84
+    },
+    {
+      "film_id": 9,
+      "character_id": 85
+    },
+    {
+      "film_id": 9,
+      "character_id": 86
+    },
+    {
+      "film_id": 10,
+      "character_id": 87
+    },
+    {
+      "film_id": 10,
+      "character_id": 88
+    },
+    {
+      "film_id": 7,
+      "character_id": 1
+    },
+    {
+      "film_id": 7,
+      "character_id": 5
+    },
+    {
+      "film_id": 7,
+      "character_id": 13
+    },
+    {
+      "film_id": 7,
+      "character_id": 14
+    },
+    {
+      "film_id": 8,
+      "character_id": 1
+    },
+    {
+      "film_id": 8,
+      "character_id": 5
+    },
+    {
+      "film_id": 8,
+      "character_id": 13
+    },
+    {
+      "film_id": 9,
+      "character_id": 1
+    },
+    {
+      "film_id": 9,
+      "character_id": 5
+    },
+    {
+      "film_id": 9,
+      "character_id": 13
     }
   ],
   "films_planets": [
@@ -4401,6 +4669,22 @@
     {
       "film_id": 6,
       "planet_id": 19
+    },
+    {
+      "film_id": 7,
+      "planet_id": 61
+    },
+    {
+      "film_id": 8,
+      "planet_id": 62
+    },
+    {
+      "film_id": 9,
+      "planet_id": 63
+    },
+    {
+      "film_id": 10,
+      "planet_id": 64
     }
   ],
   "films_species": [
@@ -4917,6 +5201,18 @@
     {
       "film_id": 6,
       "starship_id": 75
+    },
+    {
+      "film_id": 7,
+      "starship_id": 76
+    },
+    {
+      "film_id": 8,
+      "starship_id": 77
+    },
+    {
+      "film_id": 10,
+      "starship_id": 78
     }
   ],
   "films_vehicles": [
@@ -5115,6 +5411,14 @@
     {
       "film_id": 6,
       "vehicle_id": 76
+    },
+    {
+      "film_id": 8,
+      "vehicle_id": 77
+    },
+    {
+      "film_id": 9,
+      "vehicle_id": 78
     }
   ],
   "starships_characters": [
