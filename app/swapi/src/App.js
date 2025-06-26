@@ -188,10 +188,10 @@ function App() {
 
         {status && (
           <div className={`status ${status.vectorDatabase === 'ready' ? 'status-ready' : 'status-pending'}`}>
-            <strong>System Status:</strong> API is {status.api}, 
-            Vector Database is {status.vectorDatabase}
+            <strong>System Status:</strong> API is {status.api}. 
+            Vector database is {status.vectorDatabase}
             {status.vectorDatabase === 'not_initialized' && (
-              <span>. The in-memory database (LanceDB) initializes on first query and will take a few minutes to provision.</span>
+              <span>. The vector database (LanceDB) initializes on first query and may take a few minutes to provision.</span>
             )}
           </div>
         )}
