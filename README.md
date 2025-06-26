@@ -3,17 +3,9 @@
 [![CI](https://github.com/olaekdahl/swapi/actions/workflows/pr-test.yml/badge.svg)](https://github.com/olaekdahl/swapi/actions/workflows/pr-test.yaml)
 [![CD](https://github.com/olaekdahl/swapi/actions/workflows/cd.yml/badge.svg)](https://github.com/olaekdahl/swapi/actions/workflows/cd.yml)
 
-## The Star Wars API
-
-[swapi.dev](https://swapi.dev) fork with enhanced natural language query capabilities.
-
-## What happened to swapi.co?
-
-Unfortunately swapi.co is not maintained anymore.
-
 ## What is this?
 
-An "unofficial" fork of "swapi" from https://github.com/Juriy/swapi re-written using Node.js, now enhanced with **natural language query support** using RAG (Retrieval-Augmented Generation) with vector database, OpenAI, and **LangChain tools** for enhanced accuracy.
+A fork of "swapi" from https://github.com/Juriy/swapi re-written using Node.js, now enhanced with **natural language query support** using RAG (Retrieval-Augmented Generation) with vector database, OpenAI, and **LangChain tools** for enhanced accuracy.
 
 ## Tech Stack
 
