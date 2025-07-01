@@ -203,6 +203,23 @@ function App() {
     }
   };
 
+  // Load demo tool usage for educational purposes
+  const loadDemoToolUsage = async () => {
+    try {
+      const res = await fetch('/api/demo-tool-usage');
+      const data = await res.json();
+      
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to load demo');
+      }
+      
+      setResponse(data);
+      setError('');
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   return (
     <div className="App">
       <div className="container">
@@ -274,6 +291,22 @@ function App() {
             className="submit-btn"
           >
             {loading ? 'Processing...' : 'Ask Question'}
+          </button>
+          <button
+            type="button"
+            onClick={loadDemoToolUsage}
+            className="demo-btn"
+            style={{
+              backgroundColor: '#17a2b8',
+              color: 'white',
+              border: 'none',
+              padding: '10px 20px',
+              borderRadius: '5px',
+              cursor: 'pointer',
+              marginLeft: '10px'
+            }}
+          >
+            📚 Show Tool Usage Demo
           </button>
         </form>
 
@@ -391,74 +424,157 @@ function App() {
                       borderRadius: '4px', 
                       marginBottom: '1rem' 
                     }}>
-                      <strong>📚 Educational Note:</strong> These are the actual LangChain tools that were called to enhance the response. 
-                      Each tool made specific API calls to get fresh, detailed information.
+                      <strong>📚 How LangChain Tools Work:</strong> 
+                      <ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
+                        <li>The LangChain agent analyzes your query and decides which tools to use</li>
+                        <li>Each tool makes specific API calls to get detailed, up-to-date information</li>
+                        <li>Tools can be chained together (e.g., get character → get character's films)</li>
+                        <li>All tool calls are logged here to show the decision-making process</li>
+                      </ul>
+                      <strong>Educational Benefits:</strong> See exactly which REST APIs are called, what parameters are used, and how responses are structured.
                     </div>
                     
-                    {response.toolUsage.map((tool, index) => (
-                      <div key={index} className="tool-usage-item" style={{ 
-                        border: '1px solid #dee2e6', 
-                        borderRadius: '5px', 
-                        padding: '1rem', 
-                        marginBottom: '1rem',
-                        backgroundColor: '#f8f9fa'
+                    <details style={{ marginBottom: '1rem' }}>
+                      <summary style={{ cursor: 'pointer', color: '#007bff', fontWeight: 'bold' }}>
+                        📋 Available LangChain Tools ({12} total)
+                      </summary>
+                      <div style={{ 
+                        marginTop: '0.5rem', 
+                        backgroundColor: '#f8f9fa',
+                        padding: '0.75rem',
+                        border: '1px solid #e9ecef',
+                        borderRadius: '4px'
                       }}>
-                        <div className="tool-header" style={{ 
-                          display: 'flex', 
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          marginBottom: '0.5rem'
-                        }}>
-                          <h4 style={{ margin: 0, color: '#495057' }}>
-                            Tool #{index + 1}: {tool.toolName}
-                          </h4>
-                          <span style={{ 
-                            fontSize: '0.8em', 
-                            color: '#6c757d',
-                            fontFamily: 'monospace'
-                          }}>
-                            {new Date(tool.timestamp).toLocaleTimeString()}
-                          </span>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                          <div>
+                            <strong>Entity Details:</strong>
+                            <ul style={{ fontSize: '0.9em', color: '#6c757d' }}>
+                              <li>get_character - Character details by ID</li>
+                              <li>get_film - Film details by ID</li>
+                              <li>get_planet - Planet details by ID</li>
+                              <li>get_starship - Starship details by ID</li>
+                              <li>get_species - Species details by ID</li>
+                              <li>get_vehicle - Vehicle details by ID</li>
+                            </ul>
+                          </div>
+                          <div>
+                            <strong>Relationships:</strong>
+                            <ul style={{ fontSize: '0.9em', color: '#6c757d' }}>
+                              <li>get_character_films - Character's movies</li>
+                              <li>get_film_characters - Film's characters</li>
+                              <li>get_planet_characters - Planet's residents</li>
+                              <li>get_starship_characters - Starship pilots</li>
+                              <li>get_species_characters - Species members</li>
+                              <li>search_characters - Attribute-based search</li>
+                            </ul>
+                          </div>
                         </div>
-                        
-                        <div className="tool-details">
-                          <div style={{ marginBottom: '0.5rem' }}>
-                            <strong>Input Parameters:</strong>
-                            <pre style={{ 
-                              backgroundColor: '#fff', 
-                              padding: '0.5rem', 
-                              border: '1px solid #e9ecef',
-                              borderRadius: '3px',
-                              fontSize: '0.85em',
-                              marginTop: '0.25rem'
+                      </div>
+                    </details>
+                    
+                    {response.toolUsage.map((tool, index) => {
+                      // Try to parse the tool output to extract API call info
+                      let apiCallInfo = null;
+                      let actualData = null;
+                      try {
+                        const parsed = JSON.parse(tool.toolOutput);
+                        if (parsed.apiCall) {
+                          apiCallInfo = parsed.apiCall;
+                          actualData = parsed.data || parsed.error;
+                        }
+                      } catch (e) {
+                        // If parsing fails, treat as plain text
+                        actualData = tool.toolOutput;
+                      }
+
+                      return (
+                        <div key={index} className="tool-usage-item" style={{ 
+                          border: '1px solid #dee2e6', 
+                          borderRadius: '5px', 
+                          padding: '1rem', 
+                          marginBottom: '1rem',
+                          backgroundColor: '#f8f9fa'
+                        }}>
+                          <div className="tool-header" style={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            marginBottom: '0.5rem'
+                          }}>
+                            <h4 style={{ margin: 0, color: '#495057' }}>
+                              Tool #{index + 1}: {tool.toolName}
+                            </h4>
+                            <span style={{ 
+                              fontSize: '0.8em', 
+                              color: '#6c757d',
+                              fontFamily: 'monospace'
                             }}>
-                              {JSON.stringify(tool.toolInput, null, 2)}
-                            </pre>
+                              {new Date(tool.timestamp).toLocaleTimeString()}
+                            </span>
                           </div>
                           
-                          <div>
-                            <strong>Tool Response:</strong>
-                            <details style={{ marginTop: '0.25rem' }}>
-                              <summary style={{ cursor: 'pointer', color: '#007bff' }}>
-                                View Full Response
-                              </summary>
+                          <div className="tool-details">
+                            <div style={{ marginBottom: '1rem' }}>
+                              <strong>🔧 Tool Parameters:</strong>
                               <pre style={{ 
                                 backgroundColor: '#fff', 
                                 padding: '0.5rem', 
                                 border: '1px solid #e9ecef',
                                 borderRadius: '3px',
                                 fontSize: '0.85em',
-                                marginTop: '0.25rem',
-                                maxHeight: '300px',
-                                overflow: 'auto'
+                                marginTop: '0.25rem'
                               }}>
-                                {tool.toolOutput}
+                                {JSON.stringify(tool.toolInput, null, 2)}
                               </pre>
-                            </details>
+                            </div>
+
+                            {apiCallInfo && (
+                              <div style={{ marginBottom: '1rem' }}>
+                                <strong>🌐 API Call Made:</strong>
+                                <div style={{ 
+                                  backgroundColor: '#fff3cd', 
+                                  border: '1px solid #f0ad4e',
+                                  padding: '0.5rem', 
+                                  borderRadius: '3px',
+                                  marginTop: '0.25rem'
+                                }}>
+                                  <div><strong>Method:</strong> <code>{apiCallInfo.method}</code></div>
+                                  <div><strong>URL:</strong> <code>{apiCallInfo.url}</code></div>
+                                  <div><strong>Status:</strong> <span style={{ 
+                                    color: apiCallInfo.responseStatus === 200 ? '#28a745' : '#dc3545' 
+                                  }}>{apiCallInfo.responseStatus}</span></div>
+                                  <div><strong>Timestamp:</strong> {new Date(apiCallInfo.timestamp).toLocaleString()}</div>
+                                  {apiCallInfo.error && (
+                                    <div><strong>Error:</strong> <span style={{ color: '#dc3545' }}>{apiCallInfo.error}</span></div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                            
+                            <div>
+                              <strong>📊 Tool Response:</strong>
+                              <details style={{ marginTop: '0.25rem' }}>
+                                <summary style={{ cursor: 'pointer', color: '#007bff' }}>
+                                  View Full Response ({apiCallInfo ? 'Parsed' : 'Raw'})
+                                </summary>
+                                <pre style={{ 
+                                  backgroundColor: '#fff', 
+                                  padding: '0.5rem', 
+                                  border: '1px solid #e9ecef',
+                                  borderRadius: '3px',
+                                  fontSize: '0.85em',
+                                  marginTop: '0.25rem',
+                                  maxHeight: '300px',
+                                  overflow: 'auto'
+                                }}>
+                                  {actualData ? JSON.stringify(actualData, null, 2) : tool.toolOutput}
+                                </pre>
+                              </details>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </details>
               )}
