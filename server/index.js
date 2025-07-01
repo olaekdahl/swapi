@@ -776,6 +776,7 @@ Use the tools strategically to provide the most complete and accurate answer pos
       tools: swapiTools,
       verbose: true,
       maxIterations: 10,
+      returnIntermediateSteps: true, // This will capture tool calls
     });
 
     if (sessionId) {
@@ -797,6 +798,21 @@ Use the tools strategically to provide the most complete and accurate answer pos
       sendProgress(sessionId, 'query_complete', 'Query processing completed successfully');
     }
 
+    // Process intermediate steps to extract tool usage information
+    const toolUsage = [];
+    if (result.intermediateSteps && result.intermediateSteps.length > 0) {
+      for (const step of result.intermediateSteps) {
+        if (step.action && step.action.tool && step.observation) {
+          toolUsage.push({
+            toolName: step.action.tool,
+            toolInput: step.action.toolInput,
+            toolOutput: step.observation,
+            timestamp: new Date().toISOString()
+          });
+        }
+      }
+    }
+
     const response = {
       query: query.trim(),
       answer: result.output,
@@ -804,6 +820,7 @@ Use the tools strategically to provide the most complete and accurate answer pos
       model: model.trim(),
       timestamp: new Date().toISOString(),
       enhanced: true, // Flag to indicate this used LangChain tools
+      toolUsage: toolUsage, // New field with tool usage information
       processingSteps: [
         'Vector similarity search',
         'Context extraction',

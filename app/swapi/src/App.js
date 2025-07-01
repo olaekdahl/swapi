@@ -368,6 +368,101 @@ function App() {
                 </details>
               )}
 
+              {response.toolUsage && response.toolUsage.length > 0 && (
+                <details className="tool-usage-details" style={{ 
+                  marginTop: '1rem',
+                  border: '1px solid #007bff',
+                  borderRadius: '5px',
+                  padding: '1rem'
+                }}>
+                  <summary style={{ 
+                    cursor: 'pointer', 
+                    fontSize: '1.1em', 
+                    fontWeight: 'bold',
+                    color: '#007bff'
+                  }}>
+                    🔧 LangChain Tools Used ({response.toolUsage.length} tools)
+                  </summary>
+                  <div className="tool-usage-content" style={{ marginTop: '1rem' }}>
+                    <div style={{ 
+                      backgroundColor: '#e3f2fd', 
+                      border: '1px solid #2196f3', 
+                      padding: '0.75rem', 
+                      borderRadius: '4px', 
+                      marginBottom: '1rem' 
+                    }}>
+                      <strong>📚 Educational Note:</strong> These are the actual LangChain tools that were called to enhance the response. 
+                      Each tool made specific API calls to get fresh, detailed information.
+                    </div>
+                    
+                    {response.toolUsage.map((tool, index) => (
+                      <div key={index} className="tool-usage-item" style={{ 
+                        border: '1px solid #dee2e6', 
+                        borderRadius: '5px', 
+                        padding: '1rem', 
+                        marginBottom: '1rem',
+                        backgroundColor: '#f8f9fa'
+                      }}>
+                        <div className="tool-header" style={{ 
+                          display: 'flex', 
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          marginBottom: '0.5rem'
+                        }}>
+                          <h4 style={{ margin: 0, color: '#495057' }}>
+                            Tool #{index + 1}: {tool.toolName}
+                          </h4>
+                          <span style={{ 
+                            fontSize: '0.8em', 
+                            color: '#6c757d',
+                            fontFamily: 'monospace'
+                          }}>
+                            {new Date(tool.timestamp).toLocaleTimeString()}
+                          </span>
+                        </div>
+                        
+                        <div className="tool-details">
+                          <div style={{ marginBottom: '0.5rem' }}>
+                            <strong>Input Parameters:</strong>
+                            <pre style={{ 
+                              backgroundColor: '#fff', 
+                              padding: '0.5rem', 
+                              border: '1px solid #e9ecef',
+                              borderRadius: '3px',
+                              fontSize: '0.85em',
+                              marginTop: '0.25rem'
+                            }}>
+                              {JSON.stringify(tool.toolInput, null, 2)}
+                            </pre>
+                          </div>
+                          
+                          <div>
+                            <strong>Tool Response:</strong>
+                            <details style={{ marginTop: '0.25rem' }}>
+                              <summary style={{ cursor: 'pointer', color: '#007bff' }}>
+                                View Full Response
+                              </summary>
+                              <pre style={{ 
+                                backgroundColor: '#fff', 
+                                padding: '0.5rem', 
+                                border: '1px solid #e9ecef',
+                                borderRadius: '3px',
+                                fontSize: '0.85em',
+                                marginTop: '0.25rem',
+                                maxHeight: '300px',
+                                overflow: 'auto'
+                              }}>
+                                {tool.toolOutput}
+                              </pre>
+                            </details>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              )}
+
               <details className="raw-data-details">
                 <summary>View Raw Request & Response Data</summary>
                 <div className="raw-data-content">
