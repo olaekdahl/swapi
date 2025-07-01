@@ -123,11 +123,19 @@ export const getFilmCharactersTool = new DynamicStructuredTool({
     id: z.number().describe('The ID of the film')
   }),
   func: async ({ id }) => {
-    try {
-      const response = await axios.get(`${BASE_URL}/films/${id}/characters`);
-      return JSON.stringify(response.data, null, 2);
-    } catch (error) {
-      return `Error fetching characters for film ${id}: ${error.message}`;
+    const result = await makeApiCall(`${BASE_URL}/films/${id}/characters`);
+    if (result.success) {
+      const response = {
+        data: result.data,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
+    } else {
+      const response = {
+        error: `Error fetching characters for film ${id}: ${result.error}`,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
     }
   }
 });
@@ -140,11 +148,19 @@ export const getPlanetTool = new DynamicStructuredTool({
     id: z.number().describe('The ID of the planet to retrieve')
   }),
   func: async ({ id }) => {
-    try {
-      const response = await axios.get(`${BASE_URL}/planets/${id}`);
-      return JSON.stringify(response.data, null, 2);
-    } catch (error) {
-      return `Error fetching planet ${id}: ${error.message}`;
+    const result = await makeApiCall(`${BASE_URL}/planets/${id}`);
+    if (result.success) {
+      const response = {
+        data: result.data,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
+    } else {
+      const response = {
+        error: `Error fetching planet ${id}: ${result.error}`,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
     }
   }
 });
@@ -157,11 +173,19 @@ export const getPlanetCharactersTool = new DynamicStructuredTool({
     id: z.number().describe('The ID of the planet')
   }),
   func: async ({ id }) => {
-    try {
-      const response = await axios.get(`${BASE_URL}/planets/${id}/characters`);
-      return JSON.stringify(response.data, null, 2);
-    } catch (error) {
-      return `Error fetching characters for planet ${id}: ${error.message}`;
+    const result = await makeApiCall(`${BASE_URL}/planets/${id}/characters`);
+    if (result.success) {
+      const response = {
+        data: result.data,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
+    } else {
+      const response = {
+        error: `Error fetching characters for planet ${id}: ${result.error}`,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
     }
   }
 });
@@ -174,11 +198,19 @@ export const getStarshipTool = new DynamicStructuredTool({
     id: z.number().describe('The ID of the starship to retrieve')
   }),
   func: async ({ id }) => {
-    try {
-      const response = await axios.get(`${BASE_URL}/starships/${id}`);
-      return JSON.stringify(response.data, null, 2);
-    } catch (error) {
-      return `Error fetching starship ${id}: ${error.message}`;
+    const result = await makeApiCall(`${BASE_URL}/starships/${id}`);
+    if (result.success) {
+      const response = {
+        data: result.data,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
+    } else {
+      const response = {
+        error: `Error fetching starship ${id}: ${result.error}`,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
     }
   }
 });
@@ -191,11 +223,19 @@ export const getStarshipCharactersTool = new DynamicStructuredTool({
     id: z.number().describe('The ID of the starship')
   }),
   func: async ({ id }) => {
-    try {
-      const response = await axios.get(`${BASE_URL}/starships/${id}/characters`);
-      return JSON.stringify(response.data, null, 2);
-    } catch (error) {
-      return `Error fetching characters for starship ${id}: ${error.message}`;
+    const result = await makeApiCall(`${BASE_URL}/starships/${id}/characters`);
+    if (result.success) {
+      const response = {
+        data: result.data,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
+    } else {
+      const response = {
+        error: `Error fetching characters for starship ${id}: ${result.error}`,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
     }
   }
 });
@@ -208,11 +248,19 @@ export const getSpeciesTool = new DynamicStructuredTool({
     id: z.number().describe('The ID of the species to retrieve')
   }),
   func: async ({ id }) => {
-    try {
-      const response = await axios.get(`${BASE_URL}/species/${id}`);
-      return JSON.stringify(response.data, null, 2);
-    } catch (error) {
-      return `Error fetching species ${id}: ${error.message}`;
+    const result = await makeApiCall(`${BASE_URL}/species/${id}`);
+    if (result.success) {
+      const response = {
+        data: result.data,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
+    } else {
+      const response = {
+        error: `Error fetching species ${id}: ${result.error}`,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
     }
   }
 });
@@ -225,11 +273,19 @@ export const getSpeciesCharactersTool = new DynamicStructuredTool({
     id: z.number().describe('The ID of the species')
   }),
   func: async ({ id }) => {
-    try {
-      const response = await axios.get(`${BASE_URL}/species/${id}/characters`);
-      return JSON.stringify(response.data, null, 2);
-    } catch (error) {
-      return `Error fetching characters for species ${id}: ${error.message}`;
+    const result = await makeApiCall(`${BASE_URL}/species/${id}/characters`);
+    if (result.success) {
+      const response = {
+        data: result.data,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
+    } else {
+      const response = {
+        error: `Error fetching characters for species ${id}: ${result.error}`,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
     }
   }
 });
@@ -242,11 +298,19 @@ export const getVehicleTool = new DynamicStructuredTool({
     id: z.number().describe('The ID of the vehicle to retrieve')
   }),
   func: async ({ id }) => {
-    try {
-      const response = await axios.get(`${BASE_URL}/vehicles/${id}`);
-      return JSON.stringify(response.data, null, 2);
-    } catch (error) {
-      return `Error fetching vehicle ${id}: ${error.message}`;
+    const result = await makeApiCall(`${BASE_URL}/vehicles/${id}`);
+    if (result.success) {
+      const response = {
+        data: result.data,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
+    } else {
+      const response = {
+        error: `Error fetching vehicle ${id}: ${result.error}`,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
     }
   }
 });
