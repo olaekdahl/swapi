@@ -492,8 +492,8 @@ function App() {
                     <strong>📊 Visualization Note:</strong> {embeddings.educational_info.visualization}
                   </div>
                   
-                  {embeddings.embeddings.map((embedding, index) => (
-                    <div key={embedding.id} className="embedding-item" style={{ 
+                  {embeddings.embeddings && embeddings.embeddings.map((embedding, index) => (
+                    <div key={embedding.id || index} className="embedding-item" style={{ 
                       border: '1px solid #dee2e6', 
                       borderRadius: '5px', 
                       padding: '1rem', 
@@ -527,8 +527,8 @@ function App() {
                         fontSize: '0.9em',
                         color: '#495057'
                       }}>
-                        <strong>Source Text:</strong> {embedding.textContent.substring(0, 200)}
-                        {embedding.textContent.length > 200 && '...'}
+                        <strong>Source Text:</strong> {embedding.textContent ? embedding.textContent.substring(0, 200) : 'No text'}
+                        {embedding.textContent && embedding.textContent.length > 200 && '...'}
                       </div>
                       
                       <div className="vector-preview" style={{ marginBottom: '0.75rem' }}>
@@ -542,7 +542,9 @@ function App() {
                           marginTop: '0.25rem',
                           overflowX: 'auto'
                         }}>
-                          [{embedding.embeddingPreview.map(val => val.toFixed(4)).join(', ')}...]
+                          [{embedding.embeddingPreview && embedding.embeddingPreview.map ? 
+                            embedding.embeddingPreview.map(val => val.toFixed(4)).join(', ') : 
+                            'No preview available'}...]
                         </div>
                       </div>
                       
@@ -552,9 +554,9 @@ function App() {
                         borderTop: '1px solid #e9ecef',
                         paddingTop: '0.5rem'
                       }}>
-                        <div><strong>Purpose:</strong> {embedding.educationalNotes.purpose}</div>
-                        <div><strong>Model:</strong> {embedding.educationalNotes.model}</div>
-                        <div><strong>Similarity:</strong> {embedding.educationalNotes.similarity}</div>
+                        <div><strong>Purpose:</strong> {embedding.educationalNotes?.purpose || 'Educational purpose'}</div>
+                        <div><strong>Model:</strong> {embedding.educationalNotes?.model || 'text-embedding-3-small'}</div>
+                        <div><strong>Similarity:</strong> {embedding.educationalNotes?.similarity || 'Vector similarity'}</div>
                       </div>
                     </div>
                   ))}
