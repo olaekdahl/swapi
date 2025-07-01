@@ -379,8 +379,7 @@ function App() {
             </div>
           )}
           
-          {/* Show tool usage information in progress area when available */}
-          {/* Tool usage information shown in progress area */}
+          {/* Show detailed tool usage information in progress area when available */}
           {response && response.toolUsage && response.toolUsage.length > 0 && (
             <div style={{ 
               marginTop: '1rem',
@@ -394,22 +393,152 @@ function App() {
                 color: '#007bff',
                 fontSize: '1.1em'
               }}>
-                🔧 LangChain Tools Demo Loaded Successfully!
+                🔧 LangChain Tools API Calls - Educational View
               </h4>
               <div style={{ 
                 backgroundColor: '#e3f2fd', 
                 border: '1px solid #2196f3', 
                 padding: '0.75rem', 
                 borderRadius: '4px', 
-                fontSize: '0.9em' 
+                fontSize: '0.9em',
+                marginBottom: '1rem'
               }}>
-                <p><strong>📚 Educational Demo:</strong> This demonstrates how LangChain tools work with the Star Wars API.</p>
+                <p><strong>📚 Educational Demo:</strong> This shows how LangChain agents use specialized tools to make API calls.</p>
                 <p><strong>Query:</strong> {response.query}</p>
                 <p><strong>Tools Used:</strong> {response.toolUsage.length} LangChain tools were called</p>
                 <p><strong>Answer:</strong> {response.answer}</p>
-                <p style={{ marginTop: '1rem', fontSize: '0.85em', color: '#6c757d' }}>
-                  💡 This shows how the system combines vector search with live API calls. The full tool details are available in the Response section below.
-                </p>
+              </div>
+
+              {/* Detailed Tool Calls */}
+              <div style={{ marginTop: '1rem' }}>
+                <h5 style={{ 
+                  margin: '0 0 0.75rem 0',
+                  color: '#495057',
+                  fontSize: '1em'
+                }}>
+                  🛠️ Individual Tool Calls & API Details:
+                </h5>
+                
+                {response.toolUsage.map((tool, index) => {
+                  // Parse the tool output to extract API call information
+                  let toolData = null;
+                  let apiCallInfo = null;
+                  
+                  try {
+                    const parsedOutput = JSON.parse(tool.toolOutput);
+                    toolData = parsedOutput.data;
+                    apiCallInfo = parsedOutput.apiCall;
+                  } catch (e) {
+                    // If parsing fails, show raw output
+                  }
+
+                  return (
+                    <div key={index} style={{
+                      border: '1px solid #dee2e6',
+                      borderRadius: '5px',
+                      padding: '0.75rem',
+                      marginBottom: '0.75rem',
+                      backgroundColor: '#ffffff'
+                    }}>
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '0.5rem'
+                      }}>
+                        <h6 style={{
+                          margin: 0,
+                          color: '#28a745',
+                          fontSize: '0.95em'
+                        }}>
+                          🔧 Tool #{index + 1}: {tool.toolName}
+                        </h6>
+                        <span style={{
+                          backgroundColor: '#e9ecef',
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '12px',
+                          fontSize: '0.75em',
+                          color: '#6c757d'
+                        }}>
+                          {tool.timestamp ? new Date(tool.timestamp).toLocaleTimeString() : 'Now'}
+                        </span>
+                      </div>
+
+                      {/* Tool Input */}
+                      <div style={{ marginBottom: '0.5rem' }}>
+                        <strong style={{ fontSize: '0.85em', color: '#6c757d' }}>Input Parameters:</strong>
+                        <div style={{
+                          backgroundColor: '#f8f9fa',
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '3px',
+                          fontSize: '0.8em',
+                          fontFamily: 'monospace',
+                          color: '#495057'
+                        }}>
+                          {JSON.stringify(tool.toolInput)}
+                        </div>
+                      </div>
+
+                      {/* API Call Information */}
+                      {apiCallInfo && (
+                        <div style={{ marginBottom: '0.5rem' }}>
+                          <strong style={{ fontSize: '0.85em', color: '#6c757d' }}>API Call Made:</strong>
+                          <div style={{
+                            backgroundColor: '#fff3cd',
+                            border: '1px solid #ffeaa7',
+                            padding: '0.5rem',
+                            borderRadius: '3px',
+                            fontSize: '0.8em'
+                          }}>
+                            <div><strong>Method:</strong> {apiCallInfo.method}</div>
+                            <div><strong>URL:</strong> {apiCallInfo.url}</div>
+                            <div><strong>Status:</strong> <span style={{ 
+                              color: apiCallInfo.responseStatus === 200 ? '#28a745' : '#dc3545' 
+                            }}>{apiCallInfo.responseStatus}</span></div>
+                            <div><strong>Timestamp:</strong> {new Date(apiCallInfo.timestamp).toLocaleTimeString()}</div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Response Data Summary */}
+                      {toolData && (
+                        <div style={{ marginBottom: '0.5rem' }}>
+                          <strong style={{ fontSize: '0.85em', color: '#6c757d' }}>Response Data:</strong>
+                          <div style={{
+                            backgroundColor: '#d4edda',
+                            border: '1px solid #c3e6cb',
+                            padding: '0.5rem',
+                            borderRadius: '3px',
+                            fontSize: '0.8em'
+                          }}>
+                            {toolData.name && <div><strong>Name:</strong> {toolData.name}</div>}
+                            {toolData.title && <div><strong>Title:</strong> {toolData.title}</div>}
+                            {Array.isArray(toolData) && <div><strong>Results:</strong> {toolData.length} items</div>}
+                            {toolData.id && <div><strong>ID:</strong> {toolData.id}</div>}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Educational Notes */}
+                      <div style={{
+                        borderTop: '1px solid #e9ecef',
+                        paddingTop: '0.5rem',
+                        fontSize: '0.75em',
+                        color: '#6c757d'
+                      }}>
+                        <strong>💡 What this shows:</strong> This tool made a direct API call to get {
+                          tool.toolName.includes('character') && !tool.toolName.includes('films') ? 'character information' :
+                          tool.toolName.includes('films') ? 'film information' :
+                          tool.toolName.includes('planet') ? 'planet information' :
+                          tool.toolName.includes('starship') ? 'starship information' :
+                          tool.toolName.includes('species') ? 'species information' :
+                          tool.toolName.includes('vehicle') ? 'vehicle information' :
+                          'specific Star Wars data'
+                        }, demonstrating how LangChain agents can access live APIs to provide accurate, up-to-date information.
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -474,11 +603,13 @@ function App() {
               <details className="context-details">
                 <summary>View Context Sources</summary>
                 <div className="context-sources">
-                  {response.context.map((item, index) => (
+                  {response.context && response.context.map((item, index) => (
                     <div key={index} className="context-item">
                       <div className="context-header">
                         <span className="relevance">Relevance: {(item.relevance * 100).toFixed(1)}%</span>
-                        <span className="entity-type">Type: {item.metadata.entity_type}</span>
+                        {item.metadata && item.metadata.entity_type && (
+                          <span className="entity-type">Type: {item.metadata.entity_type}</span>
+                        )}
                       </div>
                       <p className="context-content">{item.content}</p>
                     </div>
