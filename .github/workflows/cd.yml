@@ -1,6 +1,7 @@
 name: Push To ACR And Deploy To Azure WebApp
 on: 
   push:
+    branches: [ "main" ]
     paths-ignore:
       - 'README.md'
 
