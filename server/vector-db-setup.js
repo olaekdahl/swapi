@@ -827,6 +827,146 @@ class VectorDBSetup {
       return 'error';
     }
   }
+
+  /**
+   * Retrieves sample embeddings data for educational purposes
+   * Shows how embeddings are structured and stored in the vector database
+   * @param {number} limit - Number of sample embeddings to retrieve (default: 10)
+   * @returns {Promise<Array>} Array of embedding records with educational metadata
+   */
+  async getSampleEmbeddings(limit = 10) {
+    try {
+      if (!this.db) {
+        throw new Error('Database not initialized');
+      }
+
+      const tableNames = await this.db.tableNames();
+      if (!tableNames.includes(this.tableName)) {
+        // If no real database exists, return demo data for educational purposes
+        return this.getDemoEmbeddings(limit);
+      }
+
+      const table = await this.db.openTable(this.tableName);
+      
+      // Get sample records from the table
+      const records = await table.limit(limit).toArray();
+      
+      // Format the data for educational display
+      return records.map((record, index) => ({
+        id: record.id,
+        entityType: record.entity_type,
+        entityId: record.entity_id,
+        textContent: record.text,
+        // Include first 10 dimensions of the embedding vector for educational viewing
+        embeddingPreview: record.vector ? record.vector.slice(0, 10) : [],
+        embeddingDimensions: record.vector ? record.vector.length : 0,
+        metadata: {
+          // Extract any additional metadata stored in the record
+          ...Object.keys(record)
+            .filter(key => !['id', 'text', 'vector', 'entity_type', 'entity_id'].includes(key))
+            .reduce((meta, key) => {
+              meta[key] = record[key];
+              return meta;
+            }, {})
+        },
+        // Educational context about this embedding
+        educationalNotes: {
+          purpose: "This embedding represents the semantic meaning of the Star Wars entity as a vector in high-dimensional space",
+          model: "text-embedding-3-small", 
+          dimensions: record.vector ? record.vector.length : 0,
+          similarity: "Embeddings with similar semantic meaning will have vectors that are closer together in this space"
+        }
+      }));
+    } catch (error) {
+      console.error('Failed to retrieve sample embeddings:', error.message);
+      // Fall back to demo data for educational purposes
+      return this.getDemoEmbeddings(limit);
+    }
+  }
+
+  /**
+   * Provides demo embedding data for educational purposes when real database is not available
+   * @param {number} limit - Number of demo embeddings to generate
+   * @returns {Array} Array of demo embedding records
+   */
+  getDemoEmbeddings(limit = 10) {
+    const demoEntities = [
+      {
+        id: "characters_1",
+        entityType: "characters",
+        entityId: 1,
+        textContent: "Luke Skywalker is a human male from Tatooine. He has blue eyes and blonde hair. Luke is a Jedi Knight who fought in the Galactic Civil War. He is the son of Anakin Skywalker and Padmé Amidala. Luke destroyed the Death Star and helped defeat the Empire.",
+        name: "Luke Skywalker"
+      },
+      {
+        id: "characters_4",
+        entityType: "characters", 
+        entityId: 4,
+        textContent: "Darth Vader is a human male Sith Lord. He has yellow eyes and no hair due to his cybernetic suit. Vader was once the Jedi Anakin Skywalker before turning to the dark side. He is Luke Skywalker's father and serves as the Emperor's enforcer.",
+        name: "Darth Vader"
+      },
+      {
+        id: "films_1",
+        entityType: "films",
+        entityId: 1,
+        textContent: "A New Hope is the first Star Wars film released in 1977. Directed by George Lucas, it tells the story of Princess Leia's capture and rescue by Luke Skywalker and Han Solo. The film features the Death Star, a massive space station capable of destroying planets.",
+        title: "A New Hope"
+      },
+      {
+        id: "planets_1",
+        entityType: "planets",
+        entityId: 1,
+        textContent: "Tatooine is a desert planet in the Outer Rim. It has a hot, arid climate with twin suns. The planet is home to moisture farmers and is ruled by the Hutt crime families. Luke Skywalker grew up on Tatooine with his aunt and uncle.",
+        name: "Tatooine"
+      },
+      {
+        id: "starships_10",
+        entityType: "starships",
+        entityId: 10,
+        textContent: "The Millennium Falcon is a YT-1300 light freighter. It can accommodate 6 passengers and has a crew of 2. The ship is captained by Han Solo and is known for making the Kessel Run in less than 12 parsecs. It played a crucial role in destroying the Death Star.",
+        name: "Millennium Falcon"
+      }
+    ];
+
+    // Generate realistic-looking demo embeddings (random but consistent for same content)
+    const generateDemoVector = (content, dimensions = 1536) => {
+      const vector = [];
+      // Use content hash as seed for consistent "embeddings"
+      let seed = 0;
+      for (let i = 0; i < content.length; i++) {
+        seed += content.charCodeAt(i);
+      }
+      
+      for (let i = 0; i < dimensions; i++) {
+        // Generate values between -1 and 1 using pseudo-random based on content
+        const value = (Math.sin(seed + i * 0.1) + Math.cos(seed * 0.7 + i * 0.3)) / 2;
+        vector.push(value);
+      }
+      return vector;
+    };
+
+    return demoEntities.slice(0, limit).map(entity => {
+      const vector = generateDemoVector(entity.textContent);
+      return {
+        id: entity.id,
+        entityType: entity.entityType,
+        entityId: entity.entityId,
+        textContent: entity.textContent,
+        embeddingPreview: vector.slice(0, 10),
+        embeddingDimensions: vector.length,
+        metadata: {
+          name: entity.name || entity.title,
+          demo: true
+        },
+        educationalNotes: {
+          purpose: "This embedding represents the semantic meaning of the Star Wars entity as a vector in high-dimensional space",
+          model: "text-embedding-3-small (demo data)",
+          dimensions: vector.length,
+          similarity: "Embeddings with similar semantic meaning will have vectors that are closer together in this space"
+        }
+      };
+    });
+  }
 }
 
 export default VectorDBSetup;

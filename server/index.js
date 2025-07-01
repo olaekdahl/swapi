@@ -827,6 +827,89 @@ Use the tools strategically to provide the most complete and accurate answer pos
   }
 });
 
+// API endpoint to get sample embeddings for educational purposes
+/**
+ * @swagger
+ * /api/embeddings:
+ *   get:
+ *     summary: Get sample embeddings for educational purposes
+ *     description: Returns sample embedding vectors from the vector database with educational explanations
+ *     parameters:
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 50
+ *           default: 10
+ *         description: Number of sample embeddings to retrieve
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 embeddings:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 count:
+ *                   type: integer
+ *                 educational_info:
+ *                   type: object
+ *       500:
+ *         description: Internal Server Error
+ */
+app.get('/api/embeddings', async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit) || 10, 50); // Max 50 for performance
+    
+    // Get sample embeddings (will use demo data if database not ready)
+    const embeddings = await vectorDB.getSampleEmbeddings(limit);
+    
+    // Check if we're using demo data
+    const isDemoData = embeddings.length > 0 && embeddings[0].metadata.demo;
+    
+    // Educational information about embeddings
+    const educationalInfo = {
+      explanation: "Embeddings are high-dimensional vector representations of text that capture semantic meaning. Similar concepts have similar vectors.",
+      model: "text-embedding-3-small",
+      dimensions: embeddings.length > 0 ? embeddings[0].embeddingDimensions : 1536,
+      usage: "These embeddings enable semantic search - finding content by meaning rather than exact keyword matches",
+      process: [
+        "1. Text content is created for each Star Wars entity (characters, planets, films, etc.)",
+        "2. OpenAI's embedding model converts this text into a numerical vector",
+        "3. Vectors are stored in LanceDB vector database with metadata",
+        "4. When you ask a question, your query is also converted to a vector",
+        "5. The system finds the most similar vectors (closest in high-dimensional space)",
+        "6. The corresponding text content is used as context for generating answers"
+      ],
+      visualization: "Only the first 10 dimensions are shown below for readability. The full vectors have " + 
+                    (embeddings.length > 0 ? embeddings[0].embeddingDimensions : 1536) + " dimensions.",
+      note: "Each number in the embedding vector represents a different semantic feature learned by the AI model",
+      ...(isDemoData && {
+        demo_notice: "⚠️ This is demo data for educational purposes. To see real embeddings, initialize the vector database by making a query with a valid OpenAI API key."
+      })
+    };
+
+    res.json({
+      embeddings,
+      count: embeddings.length,
+      educational_info: educationalInfo,
+      is_demo_data: isDemoData,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error retrieving embeddings:', error.message);
+    res.status(500).json({ 
+      error: 'Failed to retrieve embeddings', 
+      details: error.message 
+    });
+  }
+});
+
 // Serve React app at /nlq route
 import path from 'path';
 import { fileURLToPath } from 'url';
