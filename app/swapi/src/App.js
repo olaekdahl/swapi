@@ -205,17 +205,25 @@ function App() {
 
   // Load demo tool usage for educational purposes
   const loadDemoToolUsage = async () => {
+    console.log('Demo button clicked');
     try {
+      console.log('About to fetch demo data');
       const res = await fetch('/api/demo-tool-usage');
+      console.log('Fetch completed, status:', res.status);
       const data = await res.json();
+      console.log('Data parsed:', data);
       
       if (!res.ok) {
         throw new Error(data.error || 'Failed to load demo');
       }
       
+      // Clear any existing progress updates and set demo info
+      setProgressUpdates([]);
       setResponse(data);
       setError('');
+      console.log('State updated successfully');
     } catch (err) {
+      console.error('Error in loadDemoToolUsage:', err);
       setError(err.message);
     }
   };
@@ -292,37 +300,44 @@ function App() {
           >
             {loading ? 'Processing...' : 'Ask Question'}
           </button>
-          <button
-            type="button"
-            onClick={loadDemoToolUsage}
-            className="demo-btn"
-            style={{
-              backgroundColor: '#17a2b8',
-              color: 'white',
-              border: 'none',
-              padding: '10px 20px',
-              borderRadius: '5px',
-              cursor: 'pointer',
-              marginLeft: '10px'
-            }}
-          >
-            📚 Show Tool Usage Demo
-          </button>
         </form>
 
         {/* Progress Updates Section */}
-        {progressUpdates.length > 0 && (
-          <div className="progress-section">
-            <div className="progress-header">
-              <h3>Processing Progress</h3>
-              <button 
-                onClick={clearProgress} 
-                className="clear-progress-btn"
-                disabled={loading}
-              >
-                Clear
-              </button>
+        <div className="progress-section">
+          <div className="progress-header">
+            <h3>Processing Progress</h3>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              {progressUpdates.length === 0 && !response && (
+                <button
+                  type="button"
+                  onClick={loadDemoToolUsage}
+                  className="demo-btn"
+                  style={{
+                    backgroundColor: '#17a2b8',
+                    color: 'white',
+                    border: 'none',
+                    padding: '8px 16px',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                    fontSize: '0.9em'
+                  }}
+                >
+                  📚 Show Tool Usage Demo
+                </button>
+              )}
+              {progressUpdates.length > 0 && (
+                <button 
+                  onClick={clearProgress} 
+                  className="clear-progress-btn"
+                  disabled={loading}
+                >
+                  Clear
+                </button>
+              )}
             </div>
+          </div>
+          
+          {progressUpdates.length > 0 && (
             <div className="progress-updates">
               {progressUpdates.map((update, index) => (
                 <div 
@@ -362,8 +377,61 @@ function App() {
                 </div>
               ))}
             </div>
-          </div>
-        )}
+          )}
+          
+          {/* Show tool usage information in progress area when available */}
+          {/* Simple tool usage display in progress area */}
+          {response && response.toolUsage && response.toolUsage.length > 0 && (
+            <div style={{ 
+              marginTop: '1rem',
+              border: '1px solid #007bff',
+              borderRadius: '5px',
+              padding: '1rem',
+              backgroundColor: '#f8f9fa'
+            }}>
+              <h4 style={{ 
+                margin: '0 0 1rem 0',
+                color: '#007bff',
+                fontSize: '1.1em'
+              }}>
+                🔧 LangChain Tools Used ({response.toolUsage.length} tools)
+              </h4>
+              <div style={{ 
+                backgroundColor: '#e3f2fd', 
+                border: '1px solid #2196f3', 
+                padding: '0.75rem', 
+                borderRadius: '4px', 
+                marginBottom: '1rem',
+                fontSize: '0.9em' 
+              }}>
+                <strong>📚 Educational Info:</strong> Below you can see the actual API calls made by the LangChain agent tools. This shows the decision-making process and REST API interactions.
+              </div>
+              
+              {response.toolUsage.map((tool, index) => (
+                <div key={index} style={{ 
+                  border: '1px solid #dee2e6', 
+                  borderRadius: '5px', 
+                  padding: '0.75rem', 
+                  marginBottom: '0.75rem',
+                  backgroundColor: '#ffffff',
+                  fontSize: '0.85em'
+                }}>
+                  <div style={{ 
+                    marginBottom: '0.5rem'
+                  }}>
+                    <strong style={{ color: '#495057' }}>
+                      Tool #{index + 1}: {tool.toolName || 'Unknown Tool'}
+                    </strong>
+                  </div>
+                  
+                  <div style={{ fontSize: '0.8em' }}>
+                    <div><strong>Status:</strong> Tool executed successfully</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         {error && (
           <div className="error">
