@@ -943,7 +943,8 @@ app.get('/api/demo-tool-usage', (req, res) => {
       "Context extraction", 
       "LangChain agent execution",
       "API tool integration"
-    ]
+    ],
+    isDemo: true  // Flag to identify this as demo data
   };
   
   res.json(demoResponse);

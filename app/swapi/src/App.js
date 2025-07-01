@@ -307,7 +307,7 @@ function App() {
           <div className="progress-header">
             <h3>Processing Progress</h3>
             <div style={{ display: 'flex', gap: '10px' }}>
-              {progressUpdates.length === 0 && !response && (
+              {progressUpdates.length === 0 && (!response || response.isDemo) && (
                 <button
                   type="button"
                   onClick={loadDemoToolUsage}
@@ -323,6 +323,24 @@ function App() {
                   }}
                 >
                   📚 Show Tool Usage Demo
+                </button>
+              )}
+              {response && response.isDemo && (
+                <button
+                  type="button"
+                  onClick={() => setResponse(null)}
+                  className="clear-demo-btn"
+                  style={{
+                    backgroundColor: '#6c757d',
+                    color: 'white',
+                    border: 'none',
+                    padding: '8px 16px',
+                    borderRadius: '5px',
+                    cursor: 'pointer',
+                    fontSize: '0.9em'
+                  }}
+                >
+                  🧹 Clear Demo
                 </button>
               )}
               {progressUpdates.length > 0 && (
