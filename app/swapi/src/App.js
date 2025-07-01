@@ -324,7 +324,7 @@ function App() {
                     fontSize: '0.9em'
                   }}
                 >
-                  📚 Show Tool Usage Demo
+                  📚 Show LangChain Tool Usage Demo
                 </button>
               )}
               {response && response.isDemo && (
@@ -413,7 +413,7 @@ function App() {
                 color: '#007bff',
                 fontSize: '1.1em'
               }}>
-                🔧 LangChain Tools API Calls - Educational View
+                🔧 LangChain Tools API Calls
               </h4>
               <div style={{ 
                 backgroundColor: '#e3f2fd', 
