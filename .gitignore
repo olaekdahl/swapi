@@ -19,3 +19,6 @@ server/database.json.backup
 
 # Test coverage files
 server/coverage/
+
+# Test scripts
+test-cache-logic.sh
