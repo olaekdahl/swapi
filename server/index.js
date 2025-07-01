@@ -776,6 +776,7 @@ Use the tools strategically to provide the most complete and accurate answer pos
       tools: swapiTools,
       verbose: true,
       maxIterations: 10,
+      returnIntermediateSteps: true, // This will capture tool calls
     });
 
     if (sessionId) {
@@ -797,6 +798,21 @@ Use the tools strategically to provide the most complete and accurate answer pos
       sendProgress(sessionId, 'query_complete', 'Query processing completed successfully');
     }
 
+    // Process intermediate steps to extract tool usage information
+    const toolUsage = [];
+    if (result.intermediateSteps && result.intermediateSteps.length > 0) {
+      for (const step of result.intermediateSteps) {
+        if (step.action && step.action.tool && step.observation) {
+          toolUsage.push({
+            toolName: step.action.tool,
+            toolInput: step.action.toolInput,
+            toolOutput: step.observation,
+            timestamp: new Date().toISOString()
+          });
+        }
+      }
+    }
+
     const response = {
       query: query.trim(),
       answer: result.output,
@@ -804,6 +820,7 @@ Use the tools strategically to provide the most complete and accurate answer pos
       model: model.trim(),
       timestamp: new Date().toISOString(),
       enhanced: true, // Flag to indicate this used LangChain tools
+      toolUsage: toolUsage, // New field with tool usage information
       processingSteps: [
         'Vector similarity search',
         'Context extraction',
@@ -825,6 +842,111 @@ Use the tools strategically to provide the most complete and accurate answer pos
       res.status(500).json({ error: 'Failed to process query', details: error.message });
     }
   }
+});
+
+// API endpoint to demonstrate tool usage (for educational purposes)
+/**
+ * @swagger
+ * /api/demo-tool-usage:
+ *   get:
+ *     summary: Demo tool usage response
+ *     description: Returns a sample response showing how LangChain tools work (for educational purposes)
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+app.get('/api/demo-tool-usage', (req, res) => {
+  const demoResponse = {
+    query: "Who is Luke Skywalker and what films is he in?",
+    answer: "Luke Skywalker is a main protagonist in the Star Wars universe. He is a Jedi Knight, the son of Anakin Skywalker (Darth Vader) and Padmé Amidala. Luke appears in the original trilogy films: A New Hope (Episode IV), The Empire Strikes Back (Episode V), and Return of the Jedi (Episode VI).",
+    context: [
+      {
+        content: "Luke Skywalker is a fictional character in the Star Wars franchise",
+        relevance: 0.95
+      }
+    ],
+    model: "gpt-4o-mini",
+    timestamp: new Date().toISOString(),
+    enhanced: true,
+    toolUsage: [
+      {
+        toolName: "get_character",
+        toolInput: { id: 1 },
+        toolOutput: JSON.stringify({
+          data: {
+            id: 1,
+            name: "Luke Skywalker",
+            gender: "male",
+            skin_color: "fair",
+            hair_color: "blond",
+            height: "172",
+            eye_color: "blue",
+            mass: "77",
+            homeworld: 1,
+            birth_year: "19BBY",
+            species_id: 1
+          },
+          apiCall: {
+            method: "GET",
+            url: "http://localhost:3000/api/characters/1",
+            parameters: {},
+            requestData: null,
+            timestamp: new Date().toISOString(),
+            responseStatus: 200,
+            responseData: {
+              id: 1,
+              name: "Luke Skywalker",
+              gender: "male",
+              skin_color: "fair",
+              hair_color: "blond",
+              height: "172",
+              eye_color: "blue",
+              mass: "77",
+              homeworld: 1,
+              birth_year: "19BBY",
+              species_id: 1
+            },
+            error: null
+          }
+        }, null, 2),
+        timestamp: new Date().toISOString()
+      },
+      {
+        toolName: "get_character_films",
+        toolInput: { id: 1 },
+        toolOutput: JSON.stringify({
+          data: [
+            { id: 1, title: "A New Hope", episode_id: 4, release_date: "1977-05-25" },
+            { id: 2, title: "The Empire Strikes Back", episode_id: 5, release_date: "1980-05-17" },
+            { id: 3, title: "Return of the Jedi", episode_id: 6, release_date: "1983-05-25" }
+          ],
+          apiCall: {
+            method: "GET",
+            url: "http://localhost:3000/api/characters/1/films",
+            parameters: {},
+            requestData: null,
+            timestamp: new Date().toISOString(),
+            responseStatus: 200,
+            responseData: [
+              { id: 1, title: "A New Hope", episode_id: 4, release_date: "1977-05-25" },
+              { id: 2, title: "The Empire Strikes Back", episode_id: 5, release_date: "1980-05-17" },
+              { id: 3, title: "Return of the Jedi", episode_id: 6, release_date: "1983-05-25" }
+            ],
+            error: null
+          }
+        }, null, 2),
+        timestamp: new Date().toISOString()
+      }
+    ],
+    processingSteps: [
+      "Vector similarity search",
+      "Context extraction", 
+      "LangChain agent execution",
+      "API tool integration"
+    ]
+  };
+  
+  res.json(demoResponse);
 });
 
 // API endpoint to get sample embeddings for educational purposes

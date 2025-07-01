@@ -4,6 +4,41 @@ import axios from 'axios';
 
 const BASE_URL = 'http://localhost:3000/api';
 
+// Helper function to create detailed API call information
+function createApiCallInfo(method, url, params, data, error) {
+  return {
+    method,
+    url,
+    parameters: params,
+    requestData: data,
+    timestamp: new Date().toISOString(),
+    error: error ? error.message : null
+  };
+}
+
+// Wrapper function to capture API call details
+async function makeApiCall(url, params = {}) {
+  const apiCallInfo = createApiCallInfo('GET', url, params);
+  try {
+    const response = await axios.get(url);
+    apiCallInfo.responseStatus = response.status;
+    apiCallInfo.responseData = response.data;
+    return {
+      success: true,
+      data: response.data,
+      apiCallInfo
+    };
+  } catch (error) {
+    apiCallInfo.error = error.message;
+    apiCallInfo.responseStatus = error.response?.status || 'Network Error';
+    return {
+      success: false,
+      error: error.message,
+      apiCallInfo
+    };
+  }
+}
+
 // Tool to get character details by ID
 export const getCharacterTool = new DynamicStructuredTool({
   name: 'get_character',
@@ -12,11 +47,20 @@ export const getCharacterTool = new DynamicStructuredTool({
     id: z.number().describe('The ID of the character to retrieve')
   }),
   func: async ({ id }) => {
-    try {
-      const response = await axios.get(`${BASE_URL}/characters/${id}`);
-      return JSON.stringify(response.data, null, 2);
-    } catch (error) {
-      return `Error fetching character ${id}: ${error.message}`;
+    const result = await makeApiCall(`${BASE_URL}/characters/${id}`);
+    if (result.success) {
+      // Include API call information in the response for educational purposes
+      const response = {
+        data: result.data,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
+    } else {
+      const response = {
+        error: `Error fetching character ${id}: ${result.error}`,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
     }
   }
 });
@@ -29,11 +73,19 @@ export const getCharacterFilmsTool = new DynamicStructuredTool({
     id: z.number().describe('The ID of the character')
   }),
   func: async ({ id }) => {
-    try {
-      const response = await axios.get(`${BASE_URL}/characters/${id}/films`);
-      return JSON.stringify(response.data, null, 2);
-    } catch (error) {
-      return `Error fetching films for character ${id}: ${error.message}`;
+    const result = await makeApiCall(`${BASE_URL}/characters/${id}/films`);
+    if (result.success) {
+      const response = {
+        data: result.data,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
+    } else {
+      const response = {
+        error: `Error fetching films for character ${id}: ${result.error}`,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
     }
   }
 });
@@ -46,11 +98,19 @@ export const getFilmTool = new DynamicStructuredTool({
     id: z.number().describe('The ID of the film to retrieve')
   }),
   func: async ({ id }) => {
-    try {
-      const response = await axios.get(`${BASE_URL}/films/${id}`);
-      return JSON.stringify(response.data, null, 2);
-    } catch (error) {
-      return `Error fetching film ${id}: ${error.message}`;
+    const result = await makeApiCall(`${BASE_URL}/films/${id}`);
+    if (result.success) {
+      const response = {
+        data: result.data,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
+    } else {
+      const response = {
+        error: `Error fetching film ${id}: ${result.error}`,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
     }
   }
 });
@@ -199,9 +259,9 @@ export const searchCharactersTool = new DynamicStructuredTool({
     attribute: z.string().describe('The attribute to search for (e.g., "red eyes", "blue hair", "yellow skin")'),
   }),
   func: async ({ attribute }) => {
-    try {
-      const response = await axios.get(`${BASE_URL}/characters`);
-      const characters = response.data;
+    const result = await makeApiCall(`${BASE_URL}/characters`);
+    if (result.success) {
+      const characters = result.data;
       
       // Parse the attribute search
       const attributeLower = attribute.toLowerCase();
@@ -236,7 +296,7 @@ export const searchCharactersTool = new DynamicStructuredTool({
       }
       
       // Return only relevant fields for matched characters
-      const result = matchedCharacters.map(char => ({
+      const filteredResults = matchedCharacters.map(char => ({
         id: char.id,
         name: char.name,
         eye_color: char.eye_color,
@@ -245,9 +305,19 @@ export const searchCharactersTool = new DynamicStructuredTool({
         gender: char.gender
       }));
       
-      return JSON.stringify(result, null, 2);
-    } catch (error) {
-      return `Error searching characters: ${error.message}`;
+      const response = {
+        data: filteredResults,
+        searchQuery: attribute,
+        totalMatches: filteredResults.length,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
+    } else {
+      const response = {
+        error: `Error searching characters: ${result.error}`,
+        apiCall: result.apiCallInfo
+      };
+      return JSON.stringify(response, null, 2);
     }
   }
 });
