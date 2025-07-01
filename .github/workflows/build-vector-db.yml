@@ -3,8 +3,8 @@ name: Build Vector Database
 on:
   push:
     paths:
-      - 'server/**'
-      - '.github/workflows/build-vector-db.yml'
+      - 'server/database,json'
+      # - '.github/workflows/build-vector-db.yml'
   workflow_call:
     outputs:
       database-built:
