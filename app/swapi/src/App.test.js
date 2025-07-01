@@ -1,8 +1,18 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+beforeAll(() => {
+  global.EventSource = function () {
+    return {
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      close: jest.fn()
+    };
+  };
+});
+
+test('renders app header', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  const header = screen.getByText(/Star Wars Natural Language Query/i);
+  expect(header).toBeInTheDocument();
 });
