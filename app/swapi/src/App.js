@@ -423,13 +423,16 @@ function App() {
                   // Parse the tool output to extract API call information
                   let toolData = null;
                   let apiCallInfo = null;
+                  let parseError = null;
                   
                   try {
                     const parsedOutput = JSON.parse(tool.toolOutput);
                     toolData = parsedOutput.data;
                     apiCallInfo = parsedOutput.apiCall;
                   } catch (e) {
-                    // If parsing fails, show raw output
+                    // Log parsing error and track failure for fallback display
+                    parseError = e.message;
+                    console.error(`Failed to parse tool output for tool "${tool.toolName}" (#${index + 1}):`, e.message, '\nRaw output:', tool.toolOutput);
                   }
 
                   return (
@@ -515,6 +518,39 @@ function App() {
                             {toolData.title && <div><strong>Title:</strong> {toolData.title}</div>}
                             {Array.isArray(toolData) && <div><strong>Results:</strong> {toolData.length} items</div>}
                             {toolData.id && <div><strong>ID:</strong> {toolData.id}</div>}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Raw Output Fallback (when JSON parsing fails) */}
+                      {parseError && (
+                        <div style={{ marginBottom: '0.5rem' }}>
+                          <strong style={{ fontSize: '0.85em', color: '#dc3545' }}>⚠️ Raw Tool Output (JSON Parse Failed):</strong>
+                          <div style={{
+                            backgroundColor: '#f8d7da',
+                            border: '1px solid #f5c6cb',
+                            padding: '0.5rem',
+                            borderRadius: '3px',
+                            fontSize: '0.8em',
+                            fontFamily: 'monospace',
+                            wordBreak: 'break-all',
+                            whiteSpace: 'pre-wrap'
+                          }}>
+                            <div style={{ marginBottom: '0.25rem', color: '#721c24' }}>
+                              <strong>Parse Error:</strong> {parseError}
+                            </div>
+                            <div style={{ color: '#495057' }}>
+                              <strong>Raw Output:</strong>
+                            </div>
+                            <div style={{ 
+                              backgroundColor: '#ffffff', 
+                              border: '1px solid #dee2e6', 
+                              padding: '0.25rem', 
+                              marginTop: '0.25rem',
+                              borderRadius: '2px'
+                            }}>
+                              {tool.toolOutput}
+                            </div>
                           </div>
                         </div>
                       )}
