@@ -407,7 +407,7 @@ function App() {
         {/* Educational Embeddings Viewer Section */}
         <div className="embeddings-section" style={{ marginTop: '2rem' }}>
           <div className="embeddings-header">
-            <h2>🎓 Educational: Understanding Vector Embeddings</h2>
+            <h2>Understanding Vector Embeddings</h2>
             <p style={{ color: '#666', fontSize: '0.9em', marginBottom: '1rem' }}>
               Explore how the system converts Star Wars content into vector embeddings for semantic search.
             </p>
@@ -489,7 +489,7 @@ function App() {
                     borderRadius: '4px', 
                     marginBottom: '1rem' 
                   }}>
-                    <strong>📊 Visualization Note:</strong> {embeddings.educational_info.visualization}
+                    <strong>Visualization Note:</strong> {embeddings.educational_info.visualization}
                   </div>
                   
                   {embeddings.embeddings && embeddings.embeddings.map((embedding, index) => (

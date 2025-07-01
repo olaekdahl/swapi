@@ -879,12 +879,12 @@ app.get('/api/embeddings', async (req, res) => {
       dimensions: embeddings.length > 0 ? embeddings[0].embeddingDimensions : 1536,
       usage: "These embeddings enable semantic search - finding content by meaning rather than exact keyword matches",
       process: [
-        "1. Text content is created for each Star Wars entity (characters, planets, films, etc.)",
-        "2. OpenAI's embedding model converts this text into a numerical vector",
-        "3. Vectors are stored in LanceDB vector database with metadata",
-        "4. When you ask a question, your query is also converted to a vector",
-        "5. The system finds the most similar vectors (closest in high-dimensional space)",
-        "6. The corresponding text content is used as context for generating answers"
+        "Text content is created for each Star Wars entity (characters, planets, films, etc.)",
+        "OpenAI's embedding model converts this text into a numerical vector",
+        "Vectors are stored in LanceDB vector database with metadata",
+        "When you ask a question, your query is also converted to a vector",
+        "The system finds the most similar vectors (closest in high-dimensional space)",
+        "The corresponding text content is used as context for generating answers"
       ],
       visualization: "Only the first 10 dimensions are shown below for readability. The full vectors have " + 
                     (embeddings.length > 0 ? embeddings[0].embeddingDimensions : 1536) + " dimensions.",
