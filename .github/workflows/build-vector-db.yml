@@ -3,7 +3,7 @@ name: Build Vector Database
 on:
   push:
     paths:
-      - 'server/database,json'
+      - 'server/database.json'
       # - '.github/workflows/build-vector-db.yml'
   workflow_call:
     outputs:
@@ -20,6 +20,22 @@ jobs:
     steps:
       - name: 'Checkout repository'
         uses: actions/checkout@v4
+      
+      - name: 'Generate database cache key'
+        id: cache-key
+        run: |
+          # Create cache key based on database.json content
+          DATABASE_HASH=$(sha256sum server/database.json | cut -d' ' -f1)
+          echo "database-hash=$DATABASE_HASH" >> $GITHUB_OUTPUT
+          echo "cache-key=vector-db-$DATABASE_HASH" >> $GITHUB_OUTPUT
+          echo "Database hash: $DATABASE_HASH"
+      
+      - name: 'Check for cached vector database'
+        id: cache-db
+        uses: actions/cache@v4
+        with:
+          path: server/lancedb/
+          key: ${{ steps.cache-key.outputs.cache-key }}
       
       - name: 'Setup Node.js'
         uses: actions/setup-node@v4
@@ -39,25 +55,83 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           cd server
-          echo "Building vector database with OpenAI embeddings..."
-          node build-vector-db.js
           
-          # Check if database was created successfully
-          if [ -d "lancedb" ] && [ "$(ls -A lancedb)" ]; then
-            echo "Vector database built successfully"
-            echo "database-built=true" >> $GITHUB_OUTPUT
+          # Check if we have a cached database
+          if [ "${{ steps.cache-db.outputs.cache-hit }}" = "true" ]; then
+            echo "Using cached vector database (database.json unchanged)"
+            echo "Cached database hash: ${{ steps.cache-key.outputs.database-hash }}"
             
-            # Display database info
-            echo "Database contents:"
-            ls -la lancedb/
-            
-            # Get database size
-            DB_SIZE=$(du -sh lancedb | cut -f1)
-            echo "Database size: $DB_SIZE"
+            # Verify cached database is valid
+            if [ -d "lancedb" ] && [ "$(ls -A lancedb)" ]; then
+              echo "Cached database verified successfully"
+              echo "database-built=true" >> $GITHUB_OUTPUT
+              
+              # Display database info
+              echo "Cached database contents:"
+              ls -la lancedb/
+              
+              # Get database size
+              DB_SIZE=$(du -sh lancedb | cut -f1)
+              echo "Cached database size: $DB_SIZE"
+            else
+              echo "Cached database is invalid, will rebuild"
+              # Check if we have OpenAI API key for rebuilding
+              if [ -z "$OPENAI_API_KEY" ]; then
+                echo "Error: OPENAI_API_KEY is required for rebuilding database"
+                echo "database-built=false" >> $GITHUB_OUTPUT
+                exit 1
+              fi
+              
+              echo "Building vector database with OpenAI embeddings..."
+              node build-vector-db.js
+              
+              # Check if database was created successfully
+              if [ -d "lancedb" ] && [ "$(ls -A lancedb)" ]; then
+                echo "Vector database built successfully"
+                echo "database-built=true" >> $GITHUB_OUTPUT
+                
+                # Display database info
+                echo "Database contents:"
+                ls -la lancedb/
+                
+                # Get database size
+                DB_SIZE=$(du -sh lancedb | cut -f1)
+                echo "Database size: $DB_SIZE"
+              else
+                echo "Failed to build vector database"
+                echo "database-built=false" >> $GITHUB_OUTPUT
+                exit 1
+              fi
+            fi
           else
-            echo "Failed to build vector database"
-            echo "database-built=false" >> $GITHUB_OUTPUT
-            exit 1
+            echo "No cached database found or database.json changed"
+            # Check if we have OpenAI API key for building
+            if [ -z "$OPENAI_API_KEY" ]; then
+              echo "Error: OPENAI_API_KEY is required for building database"
+              echo "database-built=false" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+            
+            echo "Building vector database with OpenAI embeddings..."
+            node build-vector-db.js
+            
+            # Check if database was created successfully
+            if [ -d "lancedb" ] && [ "$(ls -A lancedb)" ]; then
+              echo "Vector database built successfully"
+              echo "database-built=true" >> $GITHUB_OUTPUT
+              
+              # Display database info
+              echo "Database contents:"
+              ls -la lancedb/
+              
+              # Get database size
+              DB_SIZE=$(du -sh lancedb | cut -f1)
+              echo "Database size: $DB_SIZE"
+            else
+              echo "Failed to build vector database"
+              echo "database-built=false" >> $GITHUB_OUTPUT
+              exit 1
+            fi
           fi
       
       - name: 'Upload vector database artifact'
