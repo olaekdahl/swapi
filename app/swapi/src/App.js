@@ -31,7 +31,9 @@ function App() {
       eventSource.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          setProgressUpdates(prev => [...prev, data]);
+          if (data.type !== 'connected') {
+            setProgressUpdates(prev => [...prev, data]);
+          }
         } catch (error) {
           console.error('Error parsing SSE data:', error);
         }
