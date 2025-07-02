@@ -1048,6 +1048,70 @@ app.get('/nlq/*', (req, res) => {
   res.sendFile(path.join(__dirname, 'nlq-build', 'index.html'));
 });
 
+// GET route for /api/people/?search={name} (SWAPI compatibility)
+/**
+ * @swagger
+ * /api/people:
+ *   get:
+ *     summary: Search for characters by name
+ *     description: Search for Star Wars characters by name using the search query parameter
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: The name or partial name to search for
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+app.get('/api/people', (req, res) => {
+  const { search } = req.query;
+  let characters = router.db.get('characters').value();
+  
+  if (search) {
+    // Filter characters by name (case-insensitive partial match)
+    characters = characters.filter(character => 
+      character.name && character.name.toLowerCase().includes(search.toLowerCase())
+    );
+  }
+  
+  res.json(characters);
+});
+
+// GET route for /api/characters/?search={name} (consistent with current naming)
+/**
+ * @swagger
+ * /api/characters:
+ *   get:
+ *     summary: Search for characters by name
+ *     description: Search for Star Wars characters by name using the search query parameter
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: The name or partial name to search for
+ *     responses:
+ *       200:
+ *         description: OK
+ */
+app.get('/api/characters', (req, res) => {
+  const { search } = req.query;
+  let characters = router.db.get('characters').value();
+  
+  if (search) {
+    // Filter characters by name (case-insensitive partial match)
+    characters = characters.filter(character => 
+      character.name && character.name.toLowerCase().includes(search.toLowerCase())
+    );
+  }
+  
+  res.json(characters);
+});
+
 // Create middlewares and mount json-server API
 const middlewares = jsonServer.defaults();
 app.use(middlewares);
