@@ -8,7 +8,7 @@ import QueryForm from './components/QueryForm';
 import ProgressSection from './components/ProgressSection';
 import ErrorDisplay from './components/ErrorDisplay';
 import ResponseSection from './components/ResponseSection';
-import EmbeddingsSection from './components/EmbeddingsSection';
+import EducationalTabsSection from './components/EducationalTabsSection';
 
 function App() {
   const { sessionId, addProgressUpdate, setStatus } = useAppStore();
@@ -85,11 +85,11 @@ function App() {
 
         <ProgressSection />
 
+        <EducationalTabsSection />
+
         <ErrorDisplay />
 
         <ResponseSection />
-
-        <EmbeddingsSection />
       </div>
       
       {/* Version information */}
