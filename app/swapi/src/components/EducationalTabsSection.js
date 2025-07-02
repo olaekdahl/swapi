@@ -157,7 +157,7 @@ const EducationalTabsSection = () => {
               </div>
 
               <div style={{ display: 'flex', gap: '10px', marginBottom: '1rem' }}>
-                {(!response || response.isDemo) && (
+                {/* {(!response || response.isDemo) && ( */}
                   <button
                     type="button"
                     onClick={loadDemoToolUsage}
@@ -174,7 +174,7 @@ const EducationalTabsSection = () => {
                   >
                     📚 Show LangChain Tools Demo
                   </button>
-                )}
+                {/* )} */}
                 {response && response.isDemo && (
                   <button
                     type="button"
