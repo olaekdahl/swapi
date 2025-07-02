@@ -520,3 +520,54 @@ label {
     justify-self: stretch;
   }
 }
+
+/* Educational Tabs Section Styles */
+.educational-tabs-section {
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  background-color: #ffffff;
+}
+
+.tab-navigation {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  border-radius: 5px 5px 0 0;
+  padding: 0;
+  margin: 0;
+}
+
+.tab-button {
+  transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+  background-color: #e9ecef !important;
+}
+
+.tab-button.active {
+  background-color: #f8f9fa !important;
+  border-bottom: 2px solid #007bff !important;
+  color: #007bff !important;
+}
+
+.tab-content {
+  padding: 1.5rem;
+}
+
+/* Responsive tabs for mobile */
+@media (max-width: 768px) {
+  .tab-navigation {
+    flex-direction: column;
+  }
+  
+  .tab-button {
+    border-radius: 0 !important;
+    margin-right: 0 !important;
+    border-bottom: 1px solid #dee2e6 !important;
+  }
+  
+  .tab-button.active {
+    border-left: 3px solid #007bff !important;
+    border-bottom: 1px solid #dee2e6 !important;
+  }
+}
