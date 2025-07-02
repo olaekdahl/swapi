@@ -85,11 +85,11 @@ function App() {
 
         <ProgressSection />
 
+        <ResponseSection />
+
         <EducationalTabsSection />
 
         <ErrorDisplay />
-
-        <ResponseSection />
       </div>
       
       {/* Version information */}
