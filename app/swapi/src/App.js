@@ -9,6 +9,7 @@ import ProgressSection from './components/ProgressSection';
 import ErrorDisplay from './components/ErrorDisplay';
 import ResponseSection from './components/ResponseSection';
 import EducationalTabsSection from './components/EducationalTabsSection';
+import UserCounter from './components/UserCounter';
 
 function App() {
   const { sessionId, addProgressUpdate, setStatus } = useAppStore();
@@ -27,7 +28,11 @@ function App() {
       eventSource.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          if (data.type !== 'connected') {
+          if (data.type === 'userCount') {
+            // Dispatch custom event for user count updates
+            const userCountEvent = new CustomEvent('userCountUpdate', { detail: event });
+            window.dispatchEvent(userCountEvent);
+          } else if (data.type !== 'connected') {
             addProgressUpdate(data);
           }
         } catch (error) {
@@ -71,6 +76,7 @@ function App() {
 
   return (
     <div className="App">
+      <UserCounter />
       <div className="container">
         <h1>Star Wars Natural Language Query</h1>
         <p>Ask questions about the Star Wars universe using natural language!</p>

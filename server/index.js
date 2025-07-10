@@ -424,6 +424,25 @@ const vectorDB = new VectorDBSetup((type, message, data) => {
 // Store for SSE connections
 const sseConnections = new Map();
 
+// Helper function to broadcast user count to all connected clients
+function broadcastUserCount() {
+  const userCount = sseConnections.size;
+  const payload = {
+    type: 'userCount',
+    count: userCount,
+    timestamp: new Date().toISOString()
+  };
+  
+  for (const [sessionId, connection] of sseConnections) {
+    try {
+      connection.write(`data: ${JSON.stringify(payload)}\n\n`);
+    } catch (error) {
+      // Remove dead connections
+      sseConnections.delete(sessionId);
+    }
+  }
+}
+
 // SSE endpoint for real-time progress updates
 app.get('/api/progress/:sessionId', (req, res) => {
   const sessionId = req.params.sessionId;
@@ -443,9 +462,14 @@ app.get('/api/progress/:sessionId', (req, res) => {
   // Send initial connection confirmation
   res.write(`data: ${JSON.stringify({ type: 'connected', sessionId, timestamp: new Date().toISOString() })}\n\n`);
 
+  // Broadcast updated user count to all clients
+  broadcastUserCount();
+
   // Handle client disconnect
   req.on('close', () => {
     sseConnections.delete(sessionId);
+    // Broadcast updated user count when user disconnects
+    broadcastUserCount();
   });
 });
 
@@ -462,6 +486,36 @@ function sendProgress(sessionId, type, message, data = {}) {
     connection.write(`data: ${JSON.stringify(payload)}\n\n`);
   }
 }
+
+// API endpoint to get current user count
+/**
+ * @swagger
+ * /api/users/count:
+ *   get:
+ *     summary: Get current connected users count
+ *     description: Returns the number of currently connected users
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 count:
+ *                   type: number
+ *                   description: Number of currently connected users
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                   description: Timestamp when count was retrieved
+ */
+app.get('/api/users/count', (req, res) => {
+  res.json({
+    count: sseConnections.size,
+    timestamp: new Date().toISOString()
+  });
+});
 
 // API endpoint to check system status
 /**
