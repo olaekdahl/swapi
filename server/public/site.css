@@ -150,10 +150,10 @@ footer {
   border-top: 1px solid #ecf0f1;
 }
 
-footer img {
-  transition: opacity 0.2s ease;
-}
-
-footer img:hover {
-  opacity: 0.8;
+footer a svg {
+  width: 32px;
+  height: 32px;
+  display: block;
+  margin: 0 auto;
+  fill: #000;
 }
