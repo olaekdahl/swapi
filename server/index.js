@@ -785,7 +785,7 @@ app.post('/api/query', async (req, res) => {
     const llm = new ChatOpenAI({
       apiKey: apiKey.trim(),
       model: model.trim(),
-      temperature: 0.7,
+      // temperature: 0.7, not supported in gtp5
     });
 
     // Create a prompt template for the agent
