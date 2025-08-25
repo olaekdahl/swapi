@@ -893,7 +893,7 @@ Use the tools strategically to provide the most complete and accurate answer pos
     } else if (error.status === 429) {
       res.status(429).json({ error: 'Rate limit exceeded. Please try again later.' });
     } else if (error.status === 400 && error.message.includes('model')) {
-      res.status(400).json({ error: 'Invalid model specified' });
+      res.status(400).json({ error: error.message });
     } else {
       res.status(500).json({ error: 'Failed to process query', details: error.message });
     }
