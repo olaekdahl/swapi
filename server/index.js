@@ -781,12 +781,23 @@ app.post('/api/query', async (req, res) => {
       sendProgress(sessionId, 'query_step', 'Initializing LangChain agent with API tools...');
     }
 
+    // Helper function to check if model is GPT-5
+    const isGPT5Model = (modelName) => {
+      return modelName.toLowerCase().includes('gpt-5') || modelName.toLowerCase().includes('gpt5');
+    };
+
     // Initialize LangChain ChatOpenAI model
-    const llm = new ChatOpenAI({
+    const modelConfig = {
       apiKey: apiKey.trim(),
-      model: model.trim(),
-      // temperature: 0.7, not supported in gtp5
-    });
+      model: model.trim()
+    };
+
+    // Add temperature only for non-GPT-5 models
+    if (!isGPT5Model(model)) {
+      modelConfig.temperature = 0.7;
+    }
+
+    const llm = new ChatOpenAI(modelConfig);
 
     // Create a prompt template for the agent
     const prompt = ChatPromptTemplate.fromMessages([
