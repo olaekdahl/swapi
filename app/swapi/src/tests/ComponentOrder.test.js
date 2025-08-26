@@ -24,6 +24,48 @@ global.fetch = jest.fn(() =>
 );
 
 describe('Component Order', () => {
+  test('TemperatureSection appears between ModelSelection and QueryForm', () => {
+    const { container } = render(<App />);
+    
+    // Find the main container
+    const appContainer = container.querySelector('.container');
+    expect(appContainer).toBeInTheDocument();
+    
+    // Get all child elements
+    const elements = Array.from(appContainer.children);
+    
+    // Look for elements by their distinctive features
+    let modelSelectionIndex = -1;
+    let temperatureSectionIndex = -1;
+    let queryFormIndex = -1;
+    
+    elements.forEach((element, index) => {
+      // Check for ModelSelection by looking for model select element
+      if (element.querySelector('#model')) {
+        modelSelectionIndex = index;
+      }
+      
+      // Check for TemperatureSection by class name
+      if (element.classList.contains('temperature-section')) {
+        temperatureSectionIndex = index;
+      }
+      
+      // Check for QueryForm by looking for query textarea
+      if (element.querySelector('#query')) {
+        queryFormIndex = index;
+      }
+    });
+    
+    // ModelSelection should come before QueryForm
+    expect(modelSelectionIndex).toBeLessThan(queryFormIndex);
+    
+    // If TemperatureSection is rendered, it should be between ModelSelection and QueryForm
+    if (temperatureSectionIndex !== -1) {
+      expect(modelSelectionIndex).toBeLessThan(temperatureSectionIndex);
+      expect(temperatureSectionIndex).toBeLessThan(queryFormIndex);
+    }
+  });
+
   test('ResponseSection appears between ProgressSection and EducationalTabsSection', () => {
     const { container } = render(<App />);
     

@@ -659,7 +659,7 @@ app.post('/api/models', async (req, res) => {
  */
 app.post('/api/query', async (req, res) => {
   try {
-    const { apiKey, model, query, sessionId } = req.body;
+    const { apiKey, model, query, temperature, sessionId } = req.body;
     
     // Validate inputs
     if (!apiKey || typeof apiKey !== 'string' || apiKey.trim().length === 0) {
@@ -794,7 +794,14 @@ app.post('/api/query', async (req, res) => {
 
     // Add temperature only for non-GPT-5 models
     if (!isGPT5Model(model)) {
-      modelConfig.temperature = 0.7;
+      // Use user-provided temperature or default to 0.7
+      const userTemperature = temperature !== undefined ? parseFloat(temperature) : 0.7;
+      // Validate temperature is in valid range
+      if (!isNaN(userTemperature) && userTemperature >= 0 && userTemperature <= 1) {
+        modelConfig.temperature = userTemperature;
+      } else {
+        modelConfig.temperature = 0.7; // fallback to default
+      }
     }
 
     const llm = new ChatOpenAI(modelConfig);

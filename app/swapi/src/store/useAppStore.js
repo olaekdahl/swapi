@@ -5,6 +5,7 @@ const useAppStore = create((set, get) => ({
   apiKey: '',
   models: [],
   selectedModel: '',
+  temperature: 0.7,
   
   // Query state
   query: '',
@@ -31,6 +32,7 @@ const useAppStore = create((set, get) => ({
   setApiKey: (apiKey) => set({ apiKey }),
   setModels: (models) => set({ models }),
   setSelectedModel: (selectedModel) => set({ selectedModel }),
+  setTemperature: (temperature) => set({ temperature }),
   setQuery: (query) => set({ query }),
   setResponse: (response) => set({ response }),
   setLoading: (loading) => set({ loading }),
