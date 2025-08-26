@@ -4,6 +4,7 @@ import useAppStore from './store/useAppStore';
 import StatusSection from './components/StatusSection';
 import ApiKeySection from './components/ApiKeySection';
 import ModelSelection from './components/ModelSelection';
+import TemperatureSection from './components/TemperatureSection';
 import QueryForm from './components/QueryForm';
 import ProgressSection from './components/ProgressSection';
 import ErrorDisplay from './components/ErrorDisplay';
@@ -86,6 +87,8 @@ function App() {
         <ApiKeySection />
         
         <ModelSelection />
+
+        <TemperatureSection />
 
         <QueryForm />
 

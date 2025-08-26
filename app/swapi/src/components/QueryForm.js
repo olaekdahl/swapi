@@ -5,6 +5,7 @@ const QueryForm = () => {
   const { 
     apiKey, 
     selectedModel, 
+    temperature,
     query, 
     loading, 
     sessionId,
@@ -34,6 +35,7 @@ const QueryForm = () => {
       apiKey,
       model: selectedModel,
       query,
+      temperature,
       sessionId
     };
 
